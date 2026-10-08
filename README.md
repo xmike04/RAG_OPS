@@ -107,6 +107,21 @@ Transformers cross-encoder trained only on SciFact's disjoint training split.
 It records Recall@10, MRR@10, nDCG@10, and per-query p50/p95 latency alongside
 model, dataset, environment, and code hashes.
 
+| Pipeline | Recall@10 | MRR@10 | nDCG@10 | p50 | p95 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| BM25 | 0.7740 | 0.6186 | 0.6519 | 24.18 ms | 42.78 ms |
+| Vector | 0.7833 | 0.6047 | 0.6451 | 14.51 ms | 27.60 ms |
+| RRF | **0.8059** | **0.6472** | **0.6816** | 40.43 ms | 67.97 ms |
+| Cross-encoder reranked | 0.5523 | 0.1757 | 0.2596 | 1,479.88 ms | 1,747.43 ms |
+
+RRF was the strongest tested configuration. The deliberately small, train-only
+cross-encoder was a negative result: it was slower and reduced held-out quality,
+so it is retained as evidence rather than presented as an improvement. The live
+API baseline completed **9,234/9,234 requests** at concurrency 8 with **24.56 ms
+p50**, **31.75 ms p95**, and **307.69 requests/second** using deterministic local
+providers. These numbers describe the recorded CPU host and workload, not a
+production SLO.
+
 See the [benchmark protocol and retained results](docs/benchmarking.md) and the
 [HTTP load-test protocol](docs/load-testing.md). The commands below exercise the
 small deterministic evaluator fixture used by CI; it is intentionally separate

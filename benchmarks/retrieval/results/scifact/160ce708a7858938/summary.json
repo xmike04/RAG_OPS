@@ -1,0 +1,168 @@
+{
+  "artifacts_sha256": {
+    "per_query.jsonl": "8775835ac26e0d23a01e8e2609aeabf2b475086feaf3b3e3ac4ac237b58c0121",
+    "run_config.json": "72d6c26dbe37903d89b77aa23ce854ffe15a8d4a5f8ef2cc54fedf757ff0f339"
+  },
+  "code": {
+    "benchmark_tree_sha256": "8b83376a7545cf903a9235878dc24ff37d660ed268d3473ae227ea55038ded44",
+    "repository_dirty": false,
+    "repository_revision": "6f0c62ab639b22bc0643fc739e15b3c8c35bd054"
+  },
+  "config": {
+    "bm25": {
+      "b": 0.75,
+      "implementation": "rank_bm25.BM25Okapi",
+      "k1": 1.5
+    },
+    "candidate_depth": 100,
+    "device": "cpu",
+    "effective_dtype": {
+      "bm25_scores": "float64",
+      "cosine_scores": "float32",
+      "embeddings": "float32",
+      "reranker_scores": "float64"
+    },
+    "embedding_batch_size": 64,
+    "embedding_model": "/tmp/minilm-mirror.xYVrBE/model",
+    "embedding_normalized": true,
+    "embedding_revision": "c9745ed1d9f207416be6d2e6f8de32d1f16199bf",
+    "hardware_note": "5 vCPU AMD EPYC 9V74, 33 GiB RAM, CPU-only managed cloud workspace",
+    "metric_cutoff": 10,
+    "model_artifacts": {
+      "embedding": {
+        "file_count": 11,
+        "files_sha256": {
+          "1_Pooling/config.json": "4be450dde3b0273bb9787637cfbd28fe04a7ba6ab9d36ac48e92b11e350ffc23",
+          "README.md": "89a4886c476123e2078c0d25aea998c116457166120339dabb9d100afc080a39",
+          "config.json": "798dfad9983712f9f58ce8590548e5de3c501006cd6ebaee2ab4f3e8026915c5",
+          "config_sentence_transformers.json": "061ca9d39661d6c6d6de5ba27f79a1cd5770ea247f8d46412a68a498dc5ac9f3",
+          "modules.json": "84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf",
+          "pytorch_model.bin": "396cbd9dc46a5ed578ccd0574ba6aad6d065017396681e86d91a3e52e75c0d9b",
+          "sentence_bert_config.json": "fc1993fde0a95c24ec6c022539d41cf6e2f7c9721e5415d6fb6897472a9cd4b7",
+          "special_tokens_map.json": "b6d346be366a7d1d48332dbc9fdf3bf8960b5d879522b7799ddba59e76237ee3",
+          "tokenizer.json": "da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0",
+          "tokenizer_config.json": "f69b0d463535c9e908705c2831528faa5c2c68c3ad7fb15d2af1522c6452c918",
+          "vocab.txt": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3"
+        },
+        "kind": "local-directory",
+        "path": "/tmp/minilm-mirror.xYVrBE/model",
+        "tree_sha256": "7511d9d58327c39bac79fab1f6ffb856331200afb69ee38fb80ace4302530d1c"
+      },
+      "reranker": {
+        "file_count": 7,
+        "files_sha256": {
+          "config.json": "391e435923492c7db1b9283121220eabcee75d90b14ba87f754159ddb5907c4e",
+          "model.safetensors": "57975e92dfb2dc0d8a6d4195d0c8f4fc51fe1ee87fcf15efa31eae7b39b9895f",
+          "special_tokens_map.json": "5d5b662e421ea9fac075174bb0688ee0d9431699900b90662acd44b2a350503a",
+          "tokenizer.json": "2fc687b11de0bc1b3d8348f92e3b49ef1089a621506c7661fbf3248fcd54947e",
+          "tokenizer_config.json": "ccb4eb21a03e1442ee5c3f85431b9c307960a04579942537d74778dc8080a48c",
+          "training_config.json": "3cf020466d6a506cc59cddb7e4e238a0c4df0941e1b961b64c4894846e0b7933",
+          "vocab.txt": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3"
+        },
+        "kind": "local-directory",
+        "path": "/workspace/RAG_OPS/benchmarks/retrieval/.cache/models/scifact-crossencoder-minilm-l6-v6",
+        "tree_sha256": "c517c4651d829e89b59a71919a05db7cd435cac758fa61dedbe75b1955b28281"
+      }
+    },
+    "rerank_batch_size": 64,
+    "rerank_depth": 20,
+    "rerank_model": ".cache/models/scifact-crossencoder-minilm-l6-v6",
+    "rerank_revision": "c5ee24cb16019beea0895867c17ab30d22fd12ee",
+    "rrf_k": 60,
+    "seed": 0,
+    "similarity": "cosine-via-normalized-dot-product",
+    "timing": "perf_counter; warmup/model-load/index/corpus-embedding excluded",
+    "torch_threads": 5
+  },
+  "corpus_count": 5183,
+  "dataset": {
+    "dataset_state_sha256": "08cf13d06aaf01bf38936642918cf8d722312a9cea70560f2f913e2b8a396b75",
+    "fingerprint": "cffa56b1f7f428061861f709be138fccd9fc6268cc12ba3c0d34fcdc4204a560",
+    "name": "BEIR SciFact",
+    "preparation_source": "local-verified-copy",
+    "prepared_state": {
+      "archive_sha256": null,
+      "corpus_count": 5183,
+      "dataset": "BEIR SciFact",
+      "dataset_fingerprint": "cffa56b1f7f428061861f709be138fccd9fc6268cc12ba3c0d34fcdc4204a560",
+      "evaluated_query_count": 300,
+      "files_sha256": {
+        "corpus.jsonl": "3042f7ba5c7c61397de242690b144369dc54bb249d5cd94007f4ece2a4fe0782",
+        "qrels/test.tsv": "18a49075af697c9bcdb3cf7b3618a12b32be0697a7e15f10a07de09d914d59b2",
+        "queries.jsonl": "afd2b43bb8eaa1d609a3763916e63491c109d199c2ef72aae2e35d47c97eef55"
+      },
+      "manifest_sha256": "6cd4ccf539aac691073ad0b168ab66fda3c6202e143855550ed403fa5174582e",
+      "schema_version": 1,
+      "split": "test"
+    },
+    "split": "test"
+  },
+  "environment": {
+    "logical_cpu_count": 5,
+    "machine": "x86_64",
+    "packages": {
+      "numpy": "2.4.1",
+      "rank-bm25": "0.2.2",
+      "sentence-transformers": "3.4.1",
+      "torch": "2.6.0+cpu",
+      "transformers": "4.57.6"
+    },
+    "physical_ram_bytes": 35743784960,
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "processor": "",
+    "python": "3.12.14"
+  },
+  "methods": {
+    "bm25": {
+      "latency_ms": {
+        "mean": 25.645803606621485,
+        "p50": 24.178753499654704,
+        "p95": 42.7765740002542
+      },
+      "metrics": {
+        "mrr@10": 0.6186150793650793,
+        "ndcg@10": 0.6518925893260478,
+        "recall@10": 0.7739999999999999
+      }
+    },
+    "rerank": {
+      "latency_ms": {
+        "mean": 1505.5970154599618,
+        "p50": 1479.8781874997076,
+        "p95": 1747.4256020513621
+      },
+      "metrics": {
+        "mrr@10": 0.17573544973544974,
+        "ndcg@10": 0.2596143188860203,
+        "recall@10": 0.5522777777777778
+      }
+    },
+    "rrf": {
+      "latency_ms": {
+        "mean": 45.209574203254306,
+        "p50": 40.425221000532474,
+        "p95": 67.97246734972761
+      },
+      "metrics": {
+        "mrr@10": 0.6471931216931217,
+        "ndcg@10": 0.6816468397284656,
+        "recall@10": 0.805888888888889
+      }
+    },
+    "vector": {
+      "latency_ms": {
+        "mean": 19.325294256647492,
+        "p50": 14.512416999878042,
+        "p95": 27.604530350254212
+      },
+      "metrics": {
+        "mrr@10": 0.6047248677248678,
+        "ndcg@10": 0.6450816521455776,
+        "recall@10": 0.7833333333333333
+      }
+    }
+  },
+  "query_count": 300,
+  "run_id": "160ce708a7858938",
+  "schema_version": 1
+}

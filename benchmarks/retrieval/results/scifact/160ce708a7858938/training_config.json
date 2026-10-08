@@ -1,0 +1,91 @@
+{
+  "base_model": {
+    "file_count": 11,
+    "files_sha256": {
+      "1_Pooling/config.json": "4be450dde3b0273bb9787637cfbd28fe04a7ba6ab9d36ac48e92b11e350ffc23",
+      "README.md": "89a4886c476123e2078c0d25aea998c116457166120339dabb9d100afc080a39",
+      "config.json": "798dfad9983712f9f58ce8590548e5de3c501006cd6ebaee2ab4f3e8026915c5",
+      "config_sentence_transformers.json": "061ca9d39661d6c6d6de5ba27f79a1cd5770ea247f8d46412a68a498dc5ac9f3",
+      "modules.json": "84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf",
+      "pytorch_model.bin": "396cbd9dc46a5ed578ccd0574ba6aad6d065017396681e86d91a3e52e75c0d9b",
+      "sentence_bert_config.json": "fc1993fde0a95c24ec6c022539d41cf6e2f7c9721e5415d6fb6897472a9cd4b7",
+      "special_tokens_map.json": "b6d346be366a7d1d48332dbc9fdf3bf8960b5d879522b7799ddba59e76237ee3",
+      "tokenizer.json": "da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0",
+      "tokenizer_config.json": "f69b0d463535c9e908705c2831528faa5c2c68c3ad7fb15d2af1522c6452c918",
+      "vocab.txt": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3"
+    },
+    "kind": "local-directory",
+    "path": "/tmp/minilm-mirror.xYVrBE/model",
+    "tree_sha256": "7511d9d58327c39bac79fab1f6ffb856331200afb69ee38fb80ace4302530d1c"
+  },
+  "code": {
+    "benchmark_tree_sha256": "8b83376a7545cf903a9235878dc24ff37d660ed268d3473ae227ea55038ded44",
+    "repository_dirty": false,
+    "repository_revision": "6f0c62ab639b22bc0643fc739e15b3c8c35bd054"
+  },
+  "created_at": "2026-10-08T20:37:33.154698+00:00",
+  "dataset": {
+    "corpus_count": 5183,
+    "corpus_sha256": "3042f7ba5c7c61397de242690b144369dc54bb249d5cd94007f4ece2a4fe0782",
+    "queries_sha256": "afd2b43bb8eaa1d609a3763916e63491c109d199c2ef72aae2e35d47c97eef55",
+    "split_isolation": {
+      "asserted_disjoint": true,
+      "test_qrels_used_for_training": false,
+      "train_test_overlap_count": 0,
+      "training_source": "qrels/train.tsv"
+    },
+    "test_qrels_sha256": "18a49075af697c9bcdb3cf7b3618a12b32be0697a7e15f10a07de09d914d59b2",
+    "test_query_count": 300,
+    "train_qrels_sha256": "4da2bae808e23316834044eb14db1674f9496190e49a57693f6f13b23d428272",
+    "train_query_count": 809
+  },
+  "deterministic_algorithms": true,
+  "device": "cpu",
+  "dtype": "float32",
+  "duration_seconds": 257.1496444999998,
+  "hardware": {
+    "logical_cpu_count": 5,
+    "machine": "x86_64",
+    "packages": {
+      "numpy": "2.4.1",
+      "rank-bm25": "0.2.2",
+      "sentence-transformers": "3.4.1",
+      "torch": "2.6.0+cpu",
+      "transformers": "4.57.6"
+    },
+    "physical_ram_bytes": 35743784960,
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "processor": "",
+    "python": "3.12.14"
+  },
+  "output_model": {
+    "file_count_before_training_config": 6,
+    "tree_sha256_before_training_config": "4bef9e68c8cfa793815555fd719d4866b1248e9d41ee3d4101ff1afc873ceb3c"
+  },
+  "schema_version": 1,
+  "seed": 17,
+  "training": {
+    "batch_size": 16,
+    "epochs": 1,
+    "implementation": "sentence_transformers.CrossEncoder.fit",
+    "learning_rate": 2e-05,
+    "loss": "BCEWithLogitsLoss (CrossEncoder single-label default)",
+    "max_length": 128,
+    "negative_miner": {
+      "b": 0.75,
+      "epsilon": 0.25,
+      "implementation": "rank_bm25.BM25Okapi",
+      "k1": 1.5,
+      "tie_breaker": "document_id ascending"
+    },
+    "negative_pair_count": 809,
+    "negatives_per_query": 1,
+    "optimizer_step_count": 108,
+    "positive_pair_count": 919,
+    "torch_threads": 5,
+    "total_pair_count": 1728,
+    "training_pairs_sha256": "7f3bf017221ed0c44bd9b82bf9273e3b4f40248918e910801651b385723a4a08",
+    "warmup_ratio": 0.1,
+    "warmup_steps": 11
+  }
+}

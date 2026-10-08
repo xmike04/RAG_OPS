@@ -68,9 +68,9 @@ benchmarks/load/results/
 - `summary.json` reports request counts, throughput, latency
   p50/p95/p99/min/max, and error information.
 
-Generated results are ignored by version control. Copy the reviewed release run
-to immutable release storage, retain its checksums, and link that location from
-the release notes. Never edit a summary without also invalidating its checksum.
+The reviewed release baseline is versioned in this directory, including raw
+request timings. Never edit a summary without rerunning the workload and
+replacing the matching environment and raw-request artifacts.
 
 ## Hardware and environment record
 
@@ -103,24 +103,23 @@ only when the environment and workload are identical. Increase concurrency in
 separate steps to locate saturation; do not extrapolate linearly beyond measured
 points.
 
-## Results placeholder
+## Retained baseline
 
-No live load result is claimed until a reviewed `summary.json` and matching
-environment artifact exist. Root release preparation replaces only the nulls
-below from retained artifacts.
+The retained run used clean revision `14d6c5e` on a 5-vCPU AMD EPYC 9V74 host
+with 33 GiB RAM. A local Docker Compose stack served deterministic local
+providers. After 10 warmup requests, eight concurrent clients queried
+`POST /v1/search` with reranking and `top_k=5` for 30 seconds.
 
-```json
-{
-  "status": "pending_measurement",
-  "summary_artifact": "benchmarks/load/results/summary.json",
-  "environment_artifact": "benchmarks/load/results/environment.json",
-  "git_revision": null,
-  "workload_checksum": null,
-  "hardware_fingerprint": null,
-  "provider_profile": null,
-  "measured_results": null
-}
-```
+| Completed | Errors | Success | Throughput | p50 | p95 | p99 |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 9,234 | 0 | 100% | 307.69 req/s | 24.56 ms | 31.75 ms | 73.87 ms |
+
+The [summary](../benchmarks/load/results/summary.json),
+[environment](../benchmarks/load/results/environment.json), and
+[9,234 raw request records](../benchmarks/load/results/requests.jsonl) are
+checked in together. This measures API/database/cache overhead with the
+credential-free providers; it does not include learned-model or remote-provider
+inference and must not be presented as that workload.
 
 ## Production implications
 

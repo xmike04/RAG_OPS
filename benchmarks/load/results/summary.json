@@ -1,0 +1,64 @@
+{
+  "benchmark": "ragops-search-http",
+  "config": {
+    "api_key_configured": false,
+    "base_url": "http://localhost:8000",
+    "concurrency": 8,
+    "duration_seconds": 30.0,
+    "endpoint": "/v1/search",
+    "query": "How are RAGOps metrics monitored?",
+    "rerank": true,
+    "timeout_seconds": 10.0,
+    "top_k": 5,
+    "warmup_requests": 10,
+    "workspace_id": "00000000-0000-0000-0000-000000000001"
+  },
+  "environment": {
+    "generated_at_utc": "2026-10-08T21:08:45.095324+00:00",
+    "git_dirty": false,
+    "git_sha": "14d6c5e9246356c8f4037d4f46d592ddbb8b0c4b",
+    "hardware_note": "5 vCPU AMD EPYC 9V74, 33 GiB RAM, local Docker Compose, deterministic local providers",
+    "logical_cpu_count": 5,
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "python_version": "3.12.14"
+  },
+  "schema_version": 1,
+  "summary": {
+    "completed_requests": 9234,
+    "elapsed_seconds": 30.01052,
+    "errors": {},
+    "failed_requests": 0,
+    "latency_ms_successful_requests": {
+      "max": 118.171,
+      "min": 10.243,
+      "p50": 24.558,
+      "p95": 31.75,
+      "p99": 73.865
+    },
+    "status_codes": {
+      "200": 9234
+    },
+    "success_rate": 1.0,
+    "successful_requests": 9234,
+    "throughput_requests_per_second": 307.692
+  },
+  "warmup": {
+    "completed_requests": 10,
+    "elapsed_seconds": 0.081896,
+    "errors": {},
+    "failed_requests": 0,
+    "latency_ms_successful_requests": {
+      "max": 67.879,
+      "min": 18.32,
+      "p50": 58.745,
+      "p95": 67.879,
+      "p99": 67.879
+    },
+    "status_codes": {
+      "200": 10
+    },
+    "success_rate": 1.0,
+    "successful_requests": 10,
+    "throughput_requests_per_second": 122.106
+  }
+}

@@ -111,24 +111,35 @@ Comparisons are valid only when dataset labels and measurement semantics match.
 If hardware or model revisions differ, describe the comparison as directional,
 not controlled.
 
-## Results placeholder
+## Retained baseline
 
-Until a retained run exists, this document makes no real-model quality or
-latency claim. Root release preparation replaces the nulls below from one
-reviewed `summary.json`; no values should be typed from memory.
+Run `160ce708a7858938` evaluated all 300 held-out queries against 5,183 corpus
+documents on a 5-vCPU AMD EPYC 9V74 cloud workspace with 33 GiB RAM. It used
+Sentence Transformers 3.4.1 and PyTorch 2.6.0 CPU at repository revision
+`6f0c62a`; the worktree was clean. Candidate depth was 100, rerank depth was 20,
+and all methods were evaluated at cutoff 10.
 
-```json
-{
-  "status": "pending_measurement",
-  "artifact": "benchmarks/retrieval/results/scifact/<run-id>/summary.json",
-  "run_id": null,
-  "git_revision": null,
-  "dataset_revision": null,
-  "model_revisions": null,
-  "hardware_fingerprint": null,
-  "measured_results": null
-}
-```
+| Method | Recall@10 | MRR@10 | nDCG@10 | p50 ms | p95 ms |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| BM25 | 0.7740 | 0.6186 | 0.6519 | 24.18 | 42.78 |
+| Vector | 0.7833 | 0.6047 | 0.6451 | 14.51 | 27.60 |
+| RRF | **0.8059** | **0.6472** | **0.6816** | 40.43 | 67.97 |
+| Cross-encoder reranked | 0.5523 | 0.1757 | 0.2596 | 1,479.88 | 1,747.43 |
+
+RRF produced the best held-out quality in this run. The cross-encoder is an
+experimental model initialized from all-MiniLM-L6-v2 and trained only on the
+SciFact train split: 919 positives and 809 deterministic BM25 hard negatives,
+one epoch, seed 17. Train and test query IDs were asserted disjoint, and test
+labels were not used for training. It regressed quality and latency, so the
+result is explicitly retained as a failed model-selection candidate rather than
+silently discarded or described as an improvement.
+
+The complete [human-readable report](../benchmarks/retrieval/results/scifact/160ce708a7858938/report.md),
+[summary](../benchmarks/retrieval/results/scifact/160ce708a7858938/summary.json),
+[configuration](../benchmarks/retrieval/results/scifact/160ce708a7858938/run_config.json),
+[training manifest](../benchmarks/retrieval/results/scifact/160ce708a7858938/training_config.json),
+and per-query rankings are versioned together. Model weights are not committed;
+their file-level and tree SHA-256 identities are recorded in the run artifacts.
 
 ## Release interpretation
 
