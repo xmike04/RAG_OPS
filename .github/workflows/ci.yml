@@ -100,3 +100,19 @@ jobs:
           bash -n scripts/build-images.sh
           python -m py_compile scripts/seed.py scripts/smoke.py
 
+  retrieval-benchmark:
+    name: Retrieval benchmark integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.9.18"
+          enable-cache: true
+          cache-dependency-glob: benchmarks/retrieval/uv.lock
+      - name: Validate benchmark code, tests, and versioned dataset
+        run: make retrieval-test
+

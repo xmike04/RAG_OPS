@@ -1,0 +1,22 @@
+{
+  "description": "Credential-free steady search workload over the seeded demo workspace.",
+  "execution": {
+    "concurrency": 8,
+    "duration_seconds": 30,
+    "timeout_seconds": 10,
+    "warmup_requests": 10
+  },
+  "request": {
+    "body": {
+      "query": "How are RAGOps metrics monitored?",
+      "rerank": true,
+      "top_k": 5,
+      "workspace_id": "00000000-0000-0000-0000-000000000001"
+    },
+    "endpoint": "/v1/search",
+    "method": "POST",
+    "semantics": "read-only"
+  },
+  "schema_version": 1
+}
+

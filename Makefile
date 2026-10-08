@@ -16,7 +16,8 @@ export BUILDX_CONFIG
 
 .PHONY: help install backend-install frontend-install lint backend-lint frontend-lint \
 	typecheck backend-typecheck frontend-typecheck test backend-test frontend-test cross-test \
-	frontend-build build config up up-observability down migrate seed smoke eval
+	frontend-build build config up up-observability down migrate seed smoke eval \
+	retrieval-test load-test
 
 help: ## Show available development commands.
 	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z0-9_-]+:.*## / {printf "%-22s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -90,4 +91,18 @@ eval: ## Run the deterministic retrieval evaluation suite.
 		--corpus evals/datasets/corpus.jsonl \
 		--run evals/runs/reference.jsonl \
 		--k 1,3,5
+
+retrieval-test: ## Validate the isolated real-model benchmark package and dataset.
+	cd benchmarks/retrieval && $(UV) sync --frozen --extra dev
+	cd benchmarks/retrieval && $(UV) run --frozen pytest
+	cd benchmarks/retrieval && $(UV) run --frozen ruff check .
+	cd benchmarks/retrieval && $(UV) run --frozen ruff format --check .
+	cd benchmarks/retrieval && $(UV) run --frozen mypy src/retrieval_benchmark
+
+load-test: ## Run the standard 30-second concurrent search workload.
+	python3 benchmarks/load/run.py \
+		--duration 30 \
+		--concurrency 8 \
+		--warmup 10 \
+		--output-dir benchmarks/load/results
 
