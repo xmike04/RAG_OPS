@@ -3,11 +3,11 @@
 **A credential-free reference platform for building, measuring, and operating retrieval-augmented generation.**
 
 [![CI](https://github.com/xmike04/RAG_OPS/actions/workflows/ci.yml/badge.svg)](https://github.com/xmike04/RAG_OPS/actions/workflows/ci.yml)
-[![Public demo](https://github.com/xmike04/RAG_OPS/actions/workflows/pages.yml/badge.svg)](https://xmike04.github.io/RAG_OPS/)
+[![Demo build](https://github.com/xmike04/RAG_OPS/actions/workflows/pages.yml/badge.svg)](https://github.com/xmike04/RAG_OPS/actions/workflows/pages.yml)
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](backend/pyproject.toml)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)](backend/pyproject.toml)
 
-[**Explore the read-only operator console →**](https://xmike04.github.io/RAG_OPS/)
+[**Watch the two-minute captioned walkthrough →**](docs/assets/ragops-two-minute-walkthrough.mp4)
 
 ![RAGOps read-only operator console](docs/assets/ragops-console.png)
 

@@ -4,6 +4,10 @@ This script shows working behavior without turning fixture data into a benchmark
 claim. Record against a fresh seeded stack and use one continuous capture where
 possible.
 
+A captioned, silent two-minute visual walkthrough is retained at
+[`assets/ragops-two-minute-walkthrough.mp4`](assets/ragops-two-minute-walkthrough.mp4).
+Use this script to record the narrated edition.
+
 ## Preflight
 
 ```bash
