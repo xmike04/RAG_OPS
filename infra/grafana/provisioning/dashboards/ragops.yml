@@ -1,0 +1,15 @@
+apiVersion: 1
+
+providers:
+  - name: RAGOps
+    orgId: 1
+    folder: RAGOps
+    folderUid: ragops
+    type: file
+    disableDeletion: true
+    updateIntervalSeconds: 30
+    allowUiUpdates: false
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false
+

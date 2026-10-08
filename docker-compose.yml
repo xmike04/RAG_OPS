@@ -1,0 +1,189 @@
+name: ragops
+
+x-backend-environment: &backend-environment
+  RAGOPS_ENVIRONMENT: ${RAGOPS_ENVIRONMENT:-development}
+  RAGOPS_LOG_LEVEL: ${RAGOPS_LOG_LEVEL:-INFO}
+  RAGOPS_DATABASE_URL: ${RAGOPS_DATABASE_URL:-postgresql+asyncpg://ragops:ragops@postgres:5432/ragops}
+  RAGOPS_REDIS_URL: ${RAGOPS_REDIS_URL:-redis://redis:6379/0}
+  RAGOPS_CORS_ORIGINS: ${RAGOPS_CORS_ORIGINS:-["http://localhost:3000","http://localhost:5173"]}
+  RAGOPS_EMBEDDING_PROVIDER: ${RAGOPS_EMBEDDING_PROVIDER:-local}
+  RAGOPS_RERANKER_PROVIDER: ${RAGOPS_RERANKER_PROVIDER:-local}
+  RAGOPS_GENERATION_PROVIDER: ${RAGOPS_GENERATION_PROVIDER:-local}
+  RAGOPS_DEFAULT_WORKSPACE_ID: ${RAGOPS_DEFAULT_WORKSPACE_ID:-00000000-0000-0000-0000-000000000001}
+
+x-backend: &backend
+  image: ragops-api:local
+  build:
+    context: .
+    dockerfile: backend/Dockerfile
+    args:
+      INSTALL_ML: ${RAGOPS_INSTALL_ML:-false}
+  env_file:
+    - path: ./.env
+      required: false
+  environment: *backend-environment
+  restart: unless-stopped
+  networks:
+    - ragops
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ragops}
+      POSTGRES_USER: ${POSTGRES_USER:-ragops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ragops}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - ragops
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - ragops
+
+  api:
+    <<: *backend
+    command: ["uvicorn", "ragops.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "${API_PORT:-8000}:8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=3)"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  worker:
+    <<: *backend
+    command: ["python", "-m", "ragops.worker.main"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os; os.kill(1, 0)"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    image: ragops-frontend:local
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_BASE_URL: ""
+    ports:
+      - "${FRONTEND_PORT:-3000}:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-Y", "off", "-O", "/dev/null", "http://127.0.0.1:8080/healthz"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - ragops
+
+  prometheus:
+    image: prom/prometheus:v3.1.0
+    profiles: ["observability"]
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --web.enable-lifecycle
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infra/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-Y", "off", "-O", "/dev/null", "http://127.0.0.1:9090/-/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    user: "65534:65534"
+    restart: unless-stopped
+    networks:
+      - ragops
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    profiles: ["observability"]
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: "false"
+      GF_PLUGINS_PREINSTALL_DISABLED: "true"
+      GF_PLUGINS_PUBLIC_KEY_RETRIEVAL_DISABLED: "true"
+    ports:
+      - "${GRAFANA_PORT:-3001}:3000"
+    volumes:
+      - ./infra/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./infra/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./infra/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -Y off -O /dev/null http://127.0.0.1:3000/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    user: "472:472"
+    restart: unless-stopped
+    networks:
+      - ragops
+
+networks:
+  ragops:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
