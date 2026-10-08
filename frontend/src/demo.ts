@@ -1,4 +1,4 @@
-import type { DocumentRecord, OpsSummary, SearchResult, ServiceHealth, TraceRecord } from './types'
+import type { DocumentRecord, OpsSummary, QueryResponse, SearchResult, ServiceHealth, TraceRecord } from './types'
 
 export const demoSummary: OpsSummary = {
   latencyP50Ms: 184,
@@ -39,3 +39,14 @@ export const demoHealth: ServiceHealth[] = [
   { name: 'Generation provider', status: 'degraded', latencyMs: 684, detail: 'Elevated latency' },
   { name: 'Embedding provider', status: 'healthy', latencyMs: 82, detail: 'Local deterministic' },
 ]
+
+export const demoQueryResponse: QueryResponse = {
+  answer: 'A safe rollback starts by declaring the incident owner, confirming the last known-good immutable image, and pausing concurrent deploys. Roll back one region first, verify readiness and error-rate guardrails, then complete the rollout and record deployment markers.',
+  citations: [
+    { id: 'c1', title: 'Incident response playbook', excerpt: 'Initiate rollback after confirming the error budget threshold and assigning an incident commander.', score: 0.94 },
+    { id: 'c2', title: 'Platform operations handbook', excerpt: 'Production rollback uses the previous immutable image and requires readiness verification.', score: 0.86 },
+  ],
+  stages: demoTraces[0].stages,
+  totalMs: 621,
+  traceId: 'demo_trace_92da1f',
+}

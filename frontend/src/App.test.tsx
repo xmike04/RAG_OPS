@@ -39,4 +39,21 @@ describe('RAGOps console', () => {
     expect(screen.getByText('Incident response playbook')).toBeInTheDocument()
     await waitFor(() => expect(screen.queryByText('Platform operations handbook')).not.toBeInTheDocument())
   })
+
+  it('loads the public demo immediately without network calls or mutations', async () => {
+    const user = userEvent.setup()
+    render(<App demoMode />)
+
+    expect(screen.getByText('Public demo · Read-only.')).toBeInTheDocument()
+    expect(screen.getByText('12.8K')).toBeInTheDocument()
+    expect(fetch).not.toHaveBeenCalled()
+
+    await user.click(screen.getByRole('button', { name: 'Documents' }))
+    expect(screen.getByRole('button', { name: 'Read-only demo' })).toBeDisabled()
+
+    await user.click(screen.getByRole('button', { name: 'Query playground' }))
+    await user.click(screen.getByRole('button', { name: 'Run demo query' }))
+    expect(await screen.findByText(/A safe rollback starts/)).toBeInTheDocument()
+    expect(fetch).not.toHaveBeenCalled()
+  })
 })

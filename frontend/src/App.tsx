@@ -1,12 +1,12 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Activity, AlertTriangle, ArrowRight, BarChart3, Check, ChevronDown,
   CircleDot, Clock3, Database, FilePlus2, FileText, Gauge, HeartPulse, Layers3,
-  Menu, Network, PanelLeftClose, Play, RefreshCw, Search, Server, Sparkles,
+  LockKeyhole, Menu, Network, PanelLeftClose, Play, RefreshCw, Search, Server, Sparkles,
   TerminalSquare, TimerReset, X, Zap,
 } from 'lucide-react'
 import { api } from './api'
-import { demoDocuments, demoHealth, demoSearch, demoSummary, demoTraces } from './demo'
+import { demoDocuments, demoHealth, demoQueryResponse, demoSearch, demoSummary, demoTraces } from './demo'
 import type { DocumentRecord, OpsSummary, QueryResponse, SearchResult, ServiceHealth, SourceMode, StageTiming, TraceRecord } from './types'
 
 type Page = 'overview' | 'playground' | 'documents' | 'traces' | 'retrieval' | 'health'
@@ -109,7 +109,7 @@ function Overview({ summary, traces, health, loading, onNavigate }: { summary: O
   </>
 }
 
-function Playground({ mode }: { mode: SourceMode }) {
+function Playground({ mode, readOnly }: { mode: SourceMode; readOnly: boolean }) {
   const [question, setQuestion] = useState('How do I safely roll back a production deployment?')
   const [result, setResult] = useState<QueryResponse | null>(null)
   const [pending, setPending] = useState(false)
@@ -117,9 +117,10 @@ function Playground({ mode }: { mode: SourceMode }) {
   const run = async (event: FormEvent) => {
     event.preventDefault(); if (!question.trim()) return
     setPending(true); setError(''); setResult(null)
+    if (readOnly) { setResult(demoQueryResponse); setPending(false); return }
     try { setResult(await api.query(question.trim(), 'default')) }
     catch (caught) {
-      if (mode === 'demo') setResult({ answer: 'A safe rollback starts by declaring the incident owner, confirming the last known-good immutable image, and pausing concurrent deploys. Roll back one region first, verify readiness and error-rate guardrails, then complete the rollout and record deployment markers.', citations: [{ id: 'c1', title: 'Incident response playbook', excerpt: 'Initiate rollback after confirming the error budget threshold and assigning an incident commander.', score: 0.94 }, { id: 'c2', title: 'Platform operations handbook', excerpt: 'Production rollback uses the previous immutable image and requires readiness verification.', score: 0.86 }], stages: demoTraces[0].stages, totalMs: 621, traceId: 'demo_trace_92da1f' })
+      if (mode === 'demo') setResult(demoQueryResponse)
       else setError(caught instanceof Error ? caught.message : 'Query failed')
     } finally { setPending(false) }
   }
@@ -130,7 +131,7 @@ function Playground({ mode }: { mode: SourceMode }) {
         <label htmlFor="question">Question</label>
         <textarea id="question" value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask your knowledge base…" rows={7} />
         <div className="form-row"><label>Workspace<select aria-label="Workspace"><option>default</option></select></label><label>Top K<select aria-label="Top K"><option>8 chunks</option><option>12 chunks</option></select></label></div>
-        <button className="primary-button" disabled={pending || !question.trim()}>{pending ? <><RefreshCw className="spin" size={17} /> Running pipeline…</> : <><Play size={17} fill="currentColor" /> Run query</>}</button>
+        <button className="primary-button" disabled={pending || !question.trim()}>{pending ? <><RefreshCw className="spin" size={17} /> Running pipeline…</> : <><Play size={17} fill="currentColor" /> {readOnly ? 'Run demo query' : 'Run query'}</>}</button>
       </form>
       <div className="query-options"><span><Check size={13} /> Hybrid search</span><span><Check size={13} /> Reranking</span><span><Check size={13} /> Citations</span></div>
     </section>
@@ -146,7 +147,7 @@ function Playground({ mode }: { mode: SourceMode }) {
   </div>
 }
 
-function Documents({ documents, setDocuments, loading, mode }: { documents: DocumentRecord[]; setDocuments: React.Dispatch<React.SetStateAction<DocumentRecord[]>>; loading: boolean; mode: SourceMode }) {
+function Documents({ documents, setDocuments, loading, mode, readOnly }: { documents: DocumentRecord[]; setDocuments: React.Dispatch<React.SetStateAction<DocumentRecord[]>>; loading: boolean; mode: SourceMode; readOnly: boolean }) {
   const [showIngest, setShowIngest] = useState(false); const [title, setTitle] = useState(''); const [content, setContent] = useState(''); const [pending, setPending] = useState(false); const [error, setError] = useState(''); const [search, setSearch] = useState('')
   const pendingJobs = documents.filter((doc) => doc.jobId && ['queued', 'processing'].includes(doc.status)).map((doc) => doc.jobId).join(',')
   useEffect(() => {
@@ -167,7 +168,7 @@ function Documents({ documents, setDocuments, loading, mode }: { documents: Docu
   const visible = documents.filter((doc) => doc.title.toLowerCase().includes(search.toLowerCase()))
   const ingest = async (event: FormEvent) => { event.preventDefault(); setPending(true); setError(''); try { const created = await api.createDocument({ title, content, workspaceId: 'default' }); setDocuments((current) => [created, ...current]); setTitle(''); setContent(''); setShowIngest(false) } catch (caught) { if (mode === 'demo') { setDocuments((current) => [{ id: `demo_${Date.now()}`, title, status: 'queued', chunks: 0, sizeBytes: new Blob([content]).size, updatedAt: new Date().toISOString() }, ...current]); setTitle(''); setContent(''); setShowIngest(false) } else setError(caught instanceof Error ? caught.message : 'Ingestion failed') } finally { setPending(false) } }
   return <>
-    <div className="toolbar"><div className="search-box"><Search size={17} /><input aria-label="Search documents" placeholder="Search documents…" value={search} onChange={(event) => setSearch(event.target.value)} /></div><button className="primary-button compact" onClick={() => setShowIngest(!showIngest)}>{showIngest ? <X size={17} /> : <FilePlus2 size={17} />}{showIngest ? 'Close' : 'Ingest document'}</button></div>
+    <div className="toolbar"><div className="search-box"><Search size={17} /><input aria-label="Search documents" placeholder="Search documents…" value={search} onChange={(event) => setSearch(event.target.value)} /></div><button className={`primary-button compact ${readOnly ? 'read-only-action' : ''}`} disabled={readOnly} title={readOnly ? 'Document ingestion is disabled in the public demo' : undefined} onClick={() => setShowIngest(!showIngest)}>{readOnly ? <LockKeyhole size={16} /> : showIngest ? <X size={17} /> : <FilePlus2 size={17} />}{readOnly ? 'Read-only demo' : showIngest ? 'Close' : 'Ingest document'}</button></div>
     {showIngest && <section className="panel ingest-panel"><div><span className="section-kicker">NEW SOURCE</span><h2>Ingest plain text or Markdown</h2><p>The worker will chunk, embed, and index this content asynchronously.</p></div><form onSubmit={ingest}><input aria-label="Document title" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Document title" /><textarea aria-label="Document content" required value={content} onChange={(e) => setContent(e.target.value)} rows={5} placeholder="Paste text or Markdown…" />{error && <span className="error-text">{error}</span>}<button className="primary-button compact" disabled={pending}>{pending ? 'Submitting…' : 'Start ingestion'}<ArrowRight size={16} /></button></form></section>}
     <section className="panel">
       <SectionHeader title={`${documents.length} documents`} aside={<span className="muted">Workspace: default</span>} />
@@ -189,27 +190,28 @@ function Traces({ traces, loading }: { traces: TraceRecord[]; loading: boolean }
 
 function ScoreBar({ label, value, tone }: { label: string; value: number; tone: string }) { return <div className="score-bar"><span>{label}</span><div><i className={tone} style={{ width: `${Math.min(value * 100, 100)}%` }} /></div><b>{value.toFixed(2)}</b></div> }
 
-function Retrieval({ mode }: { mode: SourceMode }) {
+function Retrieval({ mode, readOnly }: { mode: SourceMode; readOnly: boolean }) {
   const [query, setQuery] = useState('production rollback procedure'); const [results, setResults] = useState<SearchResult[]>(mode === 'demo' ? demoSearch : []); const [pending, setPending] = useState(false); const [error, setError] = useState('')
-  const run = async (event: FormEvent) => { event.preventDefault(); if (!query.trim()) return; setPending(true); setError(''); try { setResults(await api.search(query, 'default')) } catch (caught) { if (mode === 'demo') setResults(demoSearch); else setError(caught instanceof Error ? caught.message : 'Search failed') } finally { setPending(false) } }
+  const run = async (event: FormEvent) => { event.preventDefault(); if (!query.trim()) return; setPending(true); setError(''); if (readOnly) { setResults(demoSearch); setPending(false); return } try { setResults(await api.search(query, 'default')) } catch (caught) { if (mode === 'demo') setResults(demoSearch); else setError(caught instanceof Error ? caught.message : 'Search failed') } finally { setPending(false) } }
   return <>
-    <section className="panel retrieval-query"><form onSubmit={run}><div className="search-box"><Search size={18} /><input aria-label="Retrieval query" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Test a retrieval query…" /></div><button className="primary-button compact" disabled={pending}>{pending ? <RefreshCw size={17} className="spin" /> : <Play size={17} fill="currentColor" />}Analyze retrieval</button></form>{error && <span className="error-text">{error}</span>}<div className="legend"><span><i className="lexical" />Lexical</span><span><i className="vector" />Vector</span><span><i className="fusion" />RRF fusion</span><span><i className="rerank" />Rerank</span></div></section>
+    <section className="panel retrieval-query"><form onSubmit={run}><div className="search-box"><Search size={18} /><input aria-label="Retrieval query" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Test a retrieval query…" /></div><button className="primary-button compact" disabled={pending}>{pending ? <RefreshCw size={17} className="spin" /> : <Play size={17} fill="currentColor" />}{readOnly ? 'Analyze demo retrieval' : 'Analyze retrieval'}</button></form>{error && <span className="error-text">{error}</span>}<div className="legend"><span><i className="lexical" />Lexical</span><span><i className="vector" />Vector</span><span><i className="fusion" />RRF fusion</span><span><i className="rerank" />Rerank</span></div></section>
     <section className="panel"><SectionHeader title="Ranked candidates" aside={<span className="muted">{results.length} results · higher is better</span>} />{pending ? <LoadingRows /> : results.length ? <div className="result-list">{results.map((result, index) => <article key={result.id}><div className="result-rank">{String(index + 1).padStart(2, '0')}</div><div className="result-copy"><div><strong>{result.title}</strong><code>{result.id}</code></div><p>{result.excerpt}</p></div><div className="scores"><ScoreBar label="Lex" value={result.lexicalScore} tone="lexical" /><ScoreBar label="Vec" value={result.vectorScore} tone="vector" /><ScoreBar label="RRF" value={result.fusedScore} tone="fusion" /><ScoreBar label="Rank" value={result.rerankScore} tone="rerank" /></div></article>)}</div> : <Empty title="No results to score" detail="Run a search to compare retrieval signals." />}</section>
   </>
 }
 
-function Health({ health, loading, onRefresh }: { health: ServiceHealth[]; loading: boolean; onRefresh: () => void }) {
+function Health({ health, loading, onRefresh, readOnly }: { health: ServiceHealth[]; loading: boolean; onRefresh: () => void; readOnly: boolean }) {
   const healthy = health.filter((service) => service.status === 'healthy').length
-  return <><section className="panel health-hero"><div className="health-mark"><Activity size={30} /></div><div><span className="section-kicker">CURRENT STATUS</span><h2>{healthy === health.length ? 'All systems operational' : 'Some systems need attention'}</h2><p>{healthy} of {health.length} platform services are healthy.</p></div><button className="secondary-button" onClick={onRefresh}><RefreshCw size={16} />Refresh checks</button></section>
+  return <><section className="panel health-hero"><div className="health-mark"><Activity size={30} /></div><div><span className="section-kicker">{readOnly ? 'DEMO SNAPSHOT' : 'CURRENT STATUS'}</span><h2>{healthy === health.length ? 'All systems operational' : 'Some systems need attention'}</h2><p>{healthy} of {health.length} platform services are healthy.</p></div><button className="secondary-button" disabled={readOnly} title={readOnly ? 'Health checks are disabled in the public demo' : undefined} onClick={onRefresh}>{readOnly ? <LockKeyhole size={16} /> : <RefreshCw size={16} />}{readOnly ? 'Demo snapshot' : 'Refresh checks'}</button></section>
     <section className="service-grid">{loading ? <LoadingRows /> : health.map((service) => <article className="panel service-card" key={service.name}><div className="service-icon">{service.name.toLowerCase().includes('database') || service.name.toLowerCase().includes('postgres') ? <Database /> : service.name === 'API' ? <Server /> : <Activity />}</div><div><div className="service-title"><h3>{service.name}</h3><StatusPill status={service.status} /></div><p>{service.detail}</p></div><div className="latency-reading"><span>LATENCY</span><b>{service.latencyMs ? `${service.latencyMs} ms` : '—'}</b></div></article>)}</section>
     <section className="panel environment-card"><SectionHeader title="Environment" /><div className="environment-grid"><div><span>API VERSION</span><code>v1</code></div><div><span>WORKSPACE</span><code>default</code></div><div><span>DEPLOYMENT</span><code>local</code></div><div><span>LAST CHECK</span><code>{timeFmt.format(new Date())}</code></div></div></section></>
 }
 
-export default function App() {
+export default function App({ demoMode = import.meta.env.VITE_DEMO_MODE === 'true' }: { demoMode?: boolean }) {
   const [page, setPage] = useState<Page>('overview'); const [menuOpen, setMenuOpen] = useState(false); const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [summary, setSummary] = useState(demoSummary); const [documents, setDocuments] = useState<DocumentRecord[]>([]); const [traces, setTraces] = useState<TraceRecord[]>([]); const [health, setHealth] = useState<ServiceHealth[]>([])
-  const [mode, setMode] = useState<SourceMode>('live'); const [loading, setLoading] = useState(true); const [failure, setFailure] = useState('')
-  const load = async () => {
+  const [summary, setSummary] = useState(demoSummary); const [documents, setDocuments] = useState<DocumentRecord[]>(demoMode ? demoDocuments : []); const [traces, setTraces] = useState<TraceRecord[]>(demoMode ? demoTraces : []); const [health, setHealth] = useState<ServiceHealth[]>(demoMode ? demoHealth : [])
+  const [mode, setMode] = useState<SourceMode>(demoMode ? 'demo' : 'live'); const [loading, setLoading] = useState(!demoMode); const [failure, setFailure] = useState('')
+  const load = useCallback(async () => {
+    if (demoMode) { setSummary(demoSummary); setDocuments(demoDocuments); setTraces(demoTraces); setHealth(demoHealth); setMode('demo'); setLoading(false); setFailure(''); return }
     setLoading(true); setFailure('')
     const [summaryResult, documentsResult, tracesResult, healthResult] = await Promise.allSettled([api.getSummary(), api.listDocuments(), api.listTraces(), api.health()])
     const failed = [summaryResult, documentsResult, tracesResult, healthResult].some((result) => result.status === 'rejected')
@@ -227,27 +229,28 @@ export default function App() {
     if (healthResult.status === 'fulfilled') setHealth(healthResult.value); else setHealth(demoHealth)
     setMode(failed ? 'demo' : 'live'); if (failed) setFailure('The API is unavailable. Showing clearly marked demonstration data until the connection recovers.')
     setLoading(false)
-  }
-  useEffect(() => { void load() }, [])
+  }, [demoMode])
+  useEffect(() => { void load() }, [load])
   const navigate = (next: Page) => { setPage(next); setMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }) }
   const meta = pageMeta[page]
   return <div className={`app-shell ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
     <aside className={`sidebar ${menuOpen ? 'mobile-open' : ''}`}>
       <div className="brand"><div className="brand-mark"><span /><span /><span /></div><div><strong>RAG<span>OPS</span></strong><small>CONTROL PLANE</small></div><button className="icon-button desktop-only" aria-label="Collapse sidebar" onClick={() => setSidebarOpen(!sidebarOpen)}><PanelLeftClose size={17} /></button></div>
       <nav aria-label="Main navigation">{nav.map(({ id, label, icon: Icon }) => <button key={id} className={page === id ? 'active' : ''} onClick={() => navigate(id)} title={label}><Icon size={18} /><span>{label}</span>{page === id && <i />}</button>)}</nav>
-      <div className="sidebar-bottom"><div className="environment"><span className={mode} /><div><small>ENVIRONMENT</small><strong>{mode === 'live' ? 'API connected' : 'Demo fallback'}</strong></div></div><div className="workspace"><div>DW</div><span><small>WORKSPACE</small><strong>default</strong></span><ChevronDown size={15} /></div></div>
+      <div className="sidebar-bottom"><div className="environment"><span className={mode} /><div><small>ENVIRONMENT</small><strong>{mode === 'live' ? 'API connected' : demoMode ? 'Public demo' : 'Demo fallback'}</strong></div></div><div className="workspace"><div>DW</div><span><small>WORKSPACE</small><strong>default</strong></span><ChevronDown size={15} /></div></div>
     </aside>
     <div className="main-shell">
-      <header className="topbar"><button className="icon-button mobile-menu" aria-label="Open menu" onClick={() => setMenuOpen(!menuOpen)}><Menu size={20} /></button><div className="breadcrumb"><span>RAGOPS</span><b>/</b><strong>{meta.title}</strong></div><div className="top-actions"><span className={`connection ${mode}`}><i />{mode === 'live' ? 'Connected' : 'Demo data'}</span><button className="icon-button" aria-label="Refresh data" onClick={() => void load()}><RefreshCw size={17} className={loading ? 'spin' : ''} /></button></div></header>
+      <header className="topbar"><button className="icon-button mobile-menu" aria-label="Open menu" onClick={() => setMenuOpen(!menuOpen)}><Menu size={20} /></button><div className="breadcrumb"><span>RAGOPS</span><b>/</b><strong>{meta.title}</strong></div><div className="top-actions"><span className={`connection ${mode}`}><i />{mode === 'live' ? 'Connected' : demoMode ? 'Public demo' : 'Demo data'}</span><button className="icon-button" aria-label="Refresh data" disabled={demoMode} title={demoMode ? 'Live refresh is disabled in the public demo' : undefined} onClick={() => void load()}>{demoMode ? <LockKeyhole size={16} /> : <RefreshCw size={17} className={loading ? 'spin' : ''} />}</button></div></header>
       <main>
+        {demoMode && <div className="demo-banner public-demo" role="status"><LockKeyhole size={17} /><span><strong>Public demo · Read-only.</strong> This is a deterministic product preview; no requests are sent and no data is changed.</span></div>}
         {failure && <div className="demo-banner" role="status"><AlertTriangle size={17} /><span><strong>Demo fallback active.</strong> {failure}</span><button aria-label="Retry API" onClick={() => void load()}>Retry</button></div>}
         <div className="page-heading"><div><span>{meta.eyebrow}</span><h1>{meta.title}</h1><p>{meta.description}</p></div><div className="period-control"><Clock3 size={16} /><span>Last 24 hours</span><ChevronDown size={14} /></div></div>
         {page === 'overview' && <Overview summary={summary} traces={traces} health={health} loading={loading} onNavigate={navigate} />}
-        {page === 'playground' && <Playground mode={mode} />}
-        {page === 'documents' && <Documents documents={documents} setDocuments={setDocuments} loading={loading} mode={mode} />}
+        {page === 'playground' && <Playground mode={mode} readOnly={demoMode} />}
+        {page === 'documents' && <Documents documents={documents} setDocuments={setDocuments} loading={loading} mode={mode} readOnly={demoMode} />}
         {page === 'traces' && <Traces traces={traces} loading={loading} />}
-        {page === 'retrieval' && <Retrieval mode={mode} />}
-        {page === 'health' && <Health health={health} loading={loading} onRefresh={() => void load()} />}
+        {page === 'retrieval' && <Retrieval mode={mode} readOnly={demoMode} />}
+        {page === 'health' && <Health health={health} loading={loading} readOnly={demoMode} onRefresh={() => void load()} />}
       </main>
     </div>
     {menuOpen && <button className="menu-backdrop" aria-label="Close menu" onClick={() => setMenuOpen(false)} />}

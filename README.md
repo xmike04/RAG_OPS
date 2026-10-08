@@ -2,6 +2,15 @@
 
 **A credential-free reference platform for building, measuring, and operating retrieval-augmented generation.**
 
+[![CI](https://github.com/xmike04/RAG_OPS/actions/workflows/ci.yml/badge.svg)](https://github.com/xmike04/RAG_OPS/actions/workflows/ci.yml)
+[![Public demo](https://github.com/xmike04/RAG_OPS/actions/workflows/pages.yml/badge.svg)](https://xmike04.github.io/RAG_OPS/)
+[![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](backend/pyproject.toml)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)](backend/pyproject.toml)
+
+[**Explore the read-only operator console →**](https://xmike04.github.io/RAG_OPS/)
+
+![RAGOps read-only operator console](docs/assets/ragops-console.png)
+
 RAGOps turns text and Markdown into searchable chunks, combines lexical and
 vector retrieval, reranks the result set, and returns grounded answers with
 citations. The same request produces an inspectable trace: component scores,
@@ -24,6 +33,9 @@ operators instead of disappearing behind a single chat response.
 - An offline retrieval evaluator for Recall@k, MRR, nDCG, citation proxies, and
   latency percentiles
 - A React operator console for querying the corpus and inspecting system health
+- Reproducible SciFact benchmarks using real Sentence Transformers models,
+  canonical Okapi BM25, RRF, and cross-encoder reranking
+- A concurrent HTTP load harness with retained p50/p95/p99 latency evidence
 
 ## Architecture
 
@@ -86,7 +98,19 @@ Every response includes `X-Request-ID`. Supply your own value to correlate a
 client operation with logs and traces. The complete endpoint guide is in
 [`docs/api.md`](docs/api.md).
 
-## Evaluation
+## Measured evaluation
+
+The real-model benchmark runs the 5,183-document BEIR SciFact corpus and 300
+held-out test queries through four retrieval strategies: canonical Okapi BM25,
+normalized `all-MiniLM-L6-v2` embeddings, RRF fusion, and a Sentence
+Transformers cross-encoder trained only on SciFact's disjoint training split.
+It records Recall@10, MRR@10, nDCG@10, and per-query p50/p95 latency alongside
+model, dataset, environment, and code hashes.
+
+See the [benchmark protocol and retained results](docs/benchmarking.md) and the
+[HTTP load-test protocol](docs/load-testing.md). The commands below exercise the
+small deterministic evaluator fixture used by CI; it is intentionally separate
+from the published real-model evidence.
 
 The evaluator is standard-library Python and runs without services or keys:
 
@@ -142,13 +166,16 @@ Start the optional Prometheus and Grafana profile with `make up-observability`.
 | [API usage](docs/api.md) | Requests, responses, errors, and request IDs |
 | [Retrieval design](docs/retrieval.md) | Chunking, fusion, reranking, and tuning |
 | [Evaluation](docs/evaluation.md) | Dataset format, metrics, and release protocol |
+| [Real-model benchmark](docs/benchmarking.md) | SciFact provenance, models, metrics, and retained results |
+| [Load testing](docs/load-testing.md) | Concurrent workload, latency methodology, and retained results |
 | [Operations runbook](docs/operations.md) | Health, alerts, diagnosis, backup, and recovery |
 | [Security model](docs/security.md) | Trust boundaries, threats, and deployment controls |
 | [Demo walkthrough](docs/demo.md) | A focused project tour and technical talking points |
+| [Two-minute video script](docs/demo-video-script.md) | Recording plan for a concise technical walkthrough |
 
 ## Roadmap
 
-- [ ] Publish a reproducible live-backend quality and latency baseline
+- [x] Publish reproducible real-model retrieval and live-backend latency baselines
 - [ ] Add per-workspace authentication and authorization adapters
 - [ ] Add document update/delete workflows and retention policies
 - [ ] Evaluate learned sparse retrieval and alternative fusion strategies
