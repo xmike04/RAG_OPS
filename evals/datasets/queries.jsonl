@@ -1,0 +1,8 @@
+{"query_id":"q-rrf-formula","query":"How is an RRF score calculated?","relevant_chunk_ids":["chunk-rrf-formula"],"tags":["hybrid","exact"]}
+{"query_id":"q-readiness","query":"What dependencies does readiness verify?","relevant_chunk_ids":["chunk-readiness"],"tags":["operations"]}
+{"query_id":"q-ingestion","query":"When does a submitted document become searchable and how are retries handled?","relevant_chunk_ids":["chunk-ingestion","chunk-retry"],"tags":["ingestion","multi-evidence"]}
+{"query_id":"q-isolation","query":"Where must tenant filtering happen?","relevant_chunk_ids":["chunk-workspace"],"tags":["security","paraphrase"]}
+{"query_id":"q-request-id","query":"How can a client correlate a request with logs?","relevant_chunk_ids":["chunk-request-id"],"tags":["operations"]}
+{"query_id":"q-citations","query":"Which citations may a generated answer return?","relevant_chunk_ids":["chunk-citations"],"tags":["security"]}
+{"query_id":"q-no-keys","query":"Can the default demo run without a hosted model credential?","relevant_chunk_ids":["chunk-local-provider"],"tags":["providers","paraphrase"]}
+{"query_id":"q-storage","query":"Which data is durable and which service is reconstructable?","relevant_chunk_ids":["chunk-postgres"],"tags":["storage"]}

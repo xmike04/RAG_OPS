@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend quality
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: ragops
+          POSTGRES_USER: ragops
+          POSTGRES_PASSWORD: ragops
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ragops -d ragops"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      RAGOPS_ENVIRONMENT: test
+      RAGOPS_DATABASE_URL: postgresql+asyncpg://ragops:ragops@localhost:5432/ragops
+      RAGOPS_REDIS_URL: redis://localhost:6379/0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.9.18"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - name: Install backend dependencies
+        run: make backend-install
+      - name: Lint backend
+        run: make backend-lint
+      - name: Type-check backend
+        run: make backend-typecheck
+      - name: Test backend
+        run: make backend-test
+      - name: Test cross-component contracts
+        run: make cross-test
+
+  frontend:
+    name: Frontend quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install frontend dependencies
+        run: make frontend-install
+      - name: Lint frontend
+        run: make frontend-lint
+      - name: Test frontend
+        run: make frontend-test
+      - name: Build frontend
+        run: make frontend-build
+
+  container-config:
+    name: Container configuration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate Compose model
+        run: make config
+      - name: Validate provisioned dashboard JSON
+        run: python -m json.tool infra/grafana/dashboards/ragops-overview.json >/dev/null
+      - name: Validate helper script syntax
+        run: |
+          bash -n scripts/build-images.sh
+          python -m py_compile scripts/seed.py scripts/smoke.py
+
