@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "dataset": "BEIR SciFact",
+  "version": "1.0",
+  "split": "test",
+  "upstream": {
+    "repository": "https://github.com/allenai/scifact.git",
+    "commit": "68b98a56d93e0f9da0d2aab4e6c3294699a0f72e",
+    "paper": "https://aclanthology.org/2020.emnlp-main.609/"
+  },
+  "archive": {
+    "url": "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/scifact.zip",
+    "filename": "scifact.zip",
+    "upstream_md5": "5f7d1de60b170fc8027bb7898e2efca1",
+    "sha256": null,
+    "note": "BEIR publishes only MD5 for this archive. Preparation verifies the extracted files against the SHA256 values below."
+  },
+  "prepared_files": {
+    "corpus.jsonl": {
+      "bytes": 8051936,
+      "records": 5183,
+      "sha256": "3042f7ba5c7c61397de242690b144369dc54bb249d5cd94007f4ece2a4fe0782"
+    },
+    "queries.jsonl": {
+      "bytes": 198718,
+      "records": 1109,
+      "sha256": "afd2b43bb8eaa1d609a3763916e63491c109d199c2ef72aae2e35d47c97eef55"
+    },
+    "qrels/test.tsv": {
+      "bytes": 5049,
+      "records": 339,
+      "sha256": "18a49075af697c9bcdb3cf7b3618a12b32be0697a7e15f10a07de09d914d59b2"
+    }
+  },
+  "licenses": {
+    "claims_and_annotations": "CC BY 4.0",
+    "abstracts": "ODC-By 1.0",
+    "code": "Apache-2.0"
+  }
+}

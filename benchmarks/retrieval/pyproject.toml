@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ragops-retrieval-benchmark"
+version = "0.1.0"
+description = "Reproducible CPU benchmark for real-model hybrid retrieval"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "numpy==2.4.1",
+  "rank-bm25==0.2.2",
+  "sentence-transformers==3.4.1",
+  "torch==2.6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy==1.19.1",
+  "pytest==9.0.2",
+  "ruff==0.14.10",
+]
+
+[project.scripts]
+ragops-retrieval-prepare = "retrieval_benchmark.prepare:main"
+ragops-retrieval-benchmark = "retrieval_benchmark.benchmark:main"
+ragops-train-scifact-reranker = "retrieval_benchmark.train:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/retrieval_benchmark"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["retrieval_benchmark"]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+

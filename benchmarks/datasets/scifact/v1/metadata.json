@@ -1,0 +1,30 @@
+{
+  "catalog": {
+    "revision": "ef83d29307061c65d04b035b4f4e7c18bd8374af",
+    "url": "https://github.com/beir-cellar/beir"
+  },
+  "dataset": "BEIR SciFact",
+  "licenses": {
+    "claims_and_annotations": "CC-BY-4.0",
+    "corpus_abstracts": "ODC-By-1.0"
+  },
+  "normalization": "NFC Unicode; LF; canonical field order; numeric identifier order",
+  "official_archive": {
+    "bytes": 2816079,
+    "md5": "5f7d1de60b170fc8027bb7898e2efca1",
+    "url": "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/scifact.zip"
+  },
+  "records": {
+    "corpus": 5183,
+    "queries_all_splits": 1109,
+    "test_qrels": 339,
+    "test_queries_with_qrels": 300,
+    "train_qrels": 919,
+    "train_queries_with_qrels": 809
+  },
+  "upstream_scifact": {
+    "revision": "68b98a56d93e0f9da0d2aab4e6c3294699a0f72e",
+    "url": "https://github.com/allenai/scifact"
+  },
+  "version": "beir-scifact-5f7d1de60b170fc8027bb7898e2efca1"
+}
