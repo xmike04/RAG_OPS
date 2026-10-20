@@ -45,3 +45,8 @@ over measured wall time. Latency percentiles include successful measured request
 only; failures remain visible in the counters and raw request artifact. The tool
 returns a nonzero status when any measured request fails.
 
+Truncated responses and connections closed before response headers are recorded
+as failed requests with the `http_protocol_error` category, so the run can still
+write its artifacts. A received HTTP status is retained even if the body is
+incomplete; it does not make the request successful.
+

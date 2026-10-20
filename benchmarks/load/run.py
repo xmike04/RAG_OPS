@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import http.client
 import json
 import math
 import os
@@ -117,10 +118,11 @@ class SearchRequester:
             headers=self.headers,
             method="POST",
         )
+        status_code: int | None = None
         try:
             with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
-                response.read()
                 status_code = response.status
+                response.read()
             success = 200 <= status_code < 300
             error = None if success else f"http_{status_code}"
         except urllib.error.HTTPError as exc:
@@ -136,6 +138,9 @@ class SearchRequester:
         except TimeoutError:
             status_code = None
             error = "timeout"
+            success = False
+        except http.client.HTTPException:
+            error = "http_protocol_error"
             success = False
         except OSError:
             status_code = None
