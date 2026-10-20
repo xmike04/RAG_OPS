@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
+import sys
 import threading
 import time
 import unittest
@@ -118,16 +120,20 @@ class LoadBenchmarkUnitTests(unittest.TestCase):
 class _SearchHandler(BaseHTTPRequestHandler):
     payloads: ClassVar[list[dict[str, Any]]] = []
     payload_lock: ClassVar[threading.Lock] = threading.Lock()
+    response_mode: ClassVar[str] = "complete"
 
     def do_POST(self) -> None:
         length = int(self.headers.get("Content-Length", "0"))
         payload = json.loads(self.rfile.read(length))
         with self.payload_lock:
             self.payloads.append(payload)
+        if self.response_mode == "disconnect":
+            return
         body = b'{"results":[]}'
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(body)))
+        content_length = len(body) + (1 if self.response_mode == "truncated" else 0)
+        self.send_header("Content-Length", str(content_length))
         self.end_headers()
         self.wfile.write(body)
 
@@ -138,6 +144,7 @@ class _SearchHandler(BaseHTTPRequestHandler):
 class LoadBenchmarkHttpTests(unittest.TestCase):
     def setUp(self) -> None:
         _SearchHandler.payloads = []
+        _SearchHandler.response_mode = "complete"
         self.server = ThreadingHTTPServer(("127.0.0.1", 0), _SearchHandler)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -174,6 +181,51 @@ class LoadBenchmarkHttpTests(unittest.TestCase):
                 for payload in _SearchHandler.payloads
             )
         )
+
+    def test_protocol_failures_preserve_cli_artifacts(self) -> None:
+        for mode in ("truncated", "disconnect"):
+            with self.subTest(mode=mode), TemporaryDirectory() as directory:
+                _SearchHandler.response_mode = mode
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(Path(__file__).resolve().parents[1] / "benchmarks/load/run.py"),
+                        "--base-url",
+                        f"http://127.0.0.1:{self.server.server_port}",
+                        "--requests",
+                        "6",
+                        "--concurrency",
+                        "3",
+                        "--warmup",
+                        "0",
+                        "--timeout",
+                        "2",
+                        "--output-dir",
+                        directory,
+                    ],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                    timeout=10,
+                )
+
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertNotIn("Traceback", result.stderr)
+                output = Path(directory)
+                report = json.loads((output / "summary.json").read_text())
+                samples = [
+                    json.loads(line)
+                    for line in (output / "requests.jsonl").read_text().splitlines()
+                ]
+                self.assertTrue((output / "environment.json").is_file())
+                self.assertEqual(report["summary"]["completed_requests"], 6)
+                self.assertEqual(report["summary"]["failed_requests"], 6)
+                self.assertEqual(report["summary"]["errors"], {"http_protocol_error": 6})
+                self.assertEqual([sample["request_id"] for sample in samples], list(range(6)))
+                expected_status = 200 if mode == "truncated" else None
+                self.assertTrue(all(sample["status_code"] == expected_status for sample in samples))
+                self.assertTrue(all(not sample["success"] for sample in samples))
+                self.assertTrue(all(sample["latency_ms"] >= 0 for sample in samples))
 
 
 if __name__ == "__main__":
