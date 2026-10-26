@@ -67,6 +67,8 @@ async def capture(workspace_id: str, source_revision: str) -> dict:
             "source_tree_sha256": hashlib.sha256(json.dumps(source_hashes, sort_keys=True).encode()).hexdigest(),
             "settings": public_settings(settings), "query_embedding": embedding(search.embedding_provider),
             "ingestion_embedding": embedding(pipeline.embedder),
+            "reranking": {"provider": search.reranking_provider.provider_name, "model": search.reranking_provider.model}
+                         if search.reranking_provider is not None else None,
             "chunking": {**asdict(pipeline.chunker.config), "tokenizer": type(pipeline.chunker.tokenizer).__name__},
             "postgres": {"version": version, "pgvector_version": vector_version,
                          "indexes": [dict(row) for row in indexes], "chunks_table_and_indexes_bytes_global": table_bytes},

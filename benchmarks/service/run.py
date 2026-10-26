@@ -10,13 +10,14 @@ import platform
 import time
 import uuid
 from datetime import datetime, timezone
+from http.client import HTTPException
 from pathlib import Path
 from urllib.error import HTTPError
 from urllib.parse import urlencode, urlsplit
 from urllib.request import Request, urlopen
 
 from benchmarks.retrieval.src.retrieval_benchmark.dataset import load_documents, load_queries, load_qrels
-from benchmarks.service.core import aggregate, paired_comparison, score_response, validate_runtime, verify_manifest
+from benchmarks.service.core import aggregate, paired_comparison, score_response, validate_response_providers, validate_runtime, verify_manifest
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -108,7 +109,7 @@ def ingest_documents(client, documents: list[dict], workspace_id: str, *, timeou
 
 
 def evaluate_queries(client, queries: list[dict], qrels: dict, document_map: dict,
-                     workspace_id: str, *, top_k: int, rerank: bool, on_result=None) -> list[dict]:
+                     workspace_id: str, *, top_k: int, rerank: bool, on_result=None, runtime: dict | None = None) -> list[dict]:
     records = []
     for query in queries:
         started = time.perf_counter()
@@ -117,8 +118,10 @@ def evaluate_queries(client, queries: list[dict], qrels: dict, document_map: dic
                 "workspace_id": workspace_id, "query": query["text"], "top_k": top_k, "rerank": rerank,
             })
             elapsed = (time.perf_counter() - started) * 1000
+            if runtime is not None:
+                validate_response_providers(response.get("providers"), runtime, rerank=rerank)
             record = score_response(query["_id"], response, qrels[query["_id"]], document_map, elapsed_ms=elapsed)
-        except (OSError, RuntimeError, ValueError, KeyError, TypeError) as error:
+        except (OSError, RuntimeError, ValueError, KeyError, TypeError, HTTPException) as error:
             record = {"query_id": query["_id"], "error": type(error).__name__,
                       "elapsed_ms": (time.perf_counter() - started) * 1000}
         records.append(record)
@@ -202,7 +205,7 @@ def main() -> int:
             stream.flush()
         records = evaluate_queries(client, queries, qrels, ingested["document_map"],
                                    ingested["workspace_id"], top_k=protocol["request_top_k"],
-                                   rerank=protocol["rerank"], on_result=retained)
+                                   rerank=protocol["rerank"], on_result=retained, runtime=runtime)
     summary = aggregate(records, [query["_id"] for query in queries])
     report = {
         "schema_version": 1, "boundary": "HTTP /v1/search; no generation",

@@ -120,6 +120,28 @@ def validate_runtime(runtime: dict, *, request_top_k: int) -> None:
         raise ValueError("candidate limit is smaller than the requested chunk depth")
 
 
+
+class ProviderMismatchError(ValueError):
+    """Actual response providers do not match the recorded runtime."""
+
+
+def validate_response_providers(actual: dict, runtime: dict, *, rerank: bool) -> None:
+    if not isinstance(actual, dict):
+        raise ProviderMismatchError("response provider metadata is missing")
+    query = runtime["query_embedding"]
+    expected = {"embedding_provider": query["provider"], "embedding_model": query["model"]}
+    if rerank:
+        ranking = runtime.get("reranking")
+        if not isinstance(ranking, dict):
+            raise ProviderMismatchError("captured reranker metadata is missing")
+        expected.update(rerank_provider=ranking["provider"], rerank_model=ranking["model"])
+    elif actual.get("rerank_provider") is not None or actual.get("rerank_model") is not None:
+        raise ProviderMismatchError("response reranked a request that disabled reranking")
+    if any(not isinstance(value, str) or not value or actual.get(key) != value
+           for key, value in expected.items()):
+        raise ProviderMismatchError("response provider/model differs from the captured runtime")
+
+
 def verify_manifest(root: Path, expected_manifest_sha256: str) -> dict[str, str]:
     root = root.resolve()
     raw = (root / "manifest.sha256").read_bytes()

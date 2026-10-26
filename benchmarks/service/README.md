@@ -95,3 +95,5 @@ make cross-test
 Scoring/attribution/protocol tests are dependency-free. Full stack ingestion and
 capture require PostgreSQL, Redis, and the backend's locked runtime. A passing
 mocked client test is not a measured service run.
+
+Every successful evaluation response must match the captured embedding provider/model; enabled reranking must match the captured reranker as well. Consistent but different responses are retained as `ProviderMismatchError` failures, and the run exits nonzero. Truncated HTTP/protocol responses are sanitized failed-query records so later queries still run. Non-exposed settings and image/source correspondence still require the documented operator checks; response metadata alone does not prove those settings.
