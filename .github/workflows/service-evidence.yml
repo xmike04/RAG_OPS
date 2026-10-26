@@ -1,8 +1,6 @@
 name: Collect frozen SciFact serving evidence
 
 on:
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -128,28 +126,3 @@ jobs:
           path: retained-evidence/
           retention-days: 30
 
-  retain-in-review-branch:
-    needs: evaluate
-    if: github.event_name == 'pull_request' && github.event.pull_request.number == 3
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: p1/serving-evaluation-20261026
-      - uses: actions/download-artifact@v4
-        with:
-          name: frozen-scifact-serving-evidence
-          path: evidence
-      - name: Commit public-dataset evidence only to the review branch
-        run: |
-          set -euo pipefail
-          target="benchmarks/service/results/scifact/2026-10-26-local-$GITHUB_RUN_ID"
-          mkdir -p "$target"
-          cp -R evidence/. "$target/"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f -- "$target"
-          git commit -m "bench: retain frozen SciFact HTTP serving evidence"
-          git push origin HEAD:refs/heads/p1/serving-evaluation-20261026
