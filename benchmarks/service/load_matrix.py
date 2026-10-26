@@ -112,9 +112,11 @@ def run_condition(client, queries: list[dict], qrels: dict, document_map: dict,
 def parse_search_request_count(metrics: str) -> int:
     if "# TYPE ragops_http_requests_total counter" not in metrics.splitlines():
         raise ValueError("request-counter instrument is missing")
+    # Locked FastAPI 0.143 retains the included route's unprefixed template.
+    # The older public template is also accepted; no other routes are counted.
     total = 0
     for labels, raw in re.findall(r"^ragops_http_requests_total\{([^}]*)\}\s+([0-9.eE+-]+)\s*$", metrics, re.MULTILINE):
-        if re.search(r'(?:^|,)method="POST"(?:,|$)', labels) and re.search(r'(?:^|,)route="/v1/search"(?:,|$)', labels):
+        if re.search(r'(?:^|,)method="POST"(?:,|$)', labels) and re.search(r'(?:^|,)route="/(?:v1/)?search"(?:,|$)', labels):
             count = float(raw)
             if not math.isfinite(count) or count < 0 or not count.is_integer():
                 raise ValueError("invalid search-request counter")

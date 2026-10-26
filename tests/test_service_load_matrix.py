@@ -80,6 +80,8 @@ class LoadMatrixTests(unittest.TestCase):
             'ragops_http_requests_total{method="GET",route="/ready",status="200"} 9.0\n' +
             'ragops_http_requests_total{method="POST",route="/v1/search",status="200"} 1.0\n' +
             'ragops_http_requests_total{method="POST",route="/v1/search",status="500"} 1.0\n'), 2)
+        self.assertEqual(function(family +
+            'ragops_http_requests_total{method="POST",route="/search",status="200"} 1.0\n'), 1)
         with self.assertRaises(ValueError):
             function("# A missing instrument is not a zero measurement\n")
 
