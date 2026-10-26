@@ -1,7 +1,6 @@
 name: Inspect retained load validity diagnostics
 
 on:
-  pull_request:
   workflow_dispatch:
 
 permissions:
