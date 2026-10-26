@@ -2,6 +2,13 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import math
+import re
+import subprocess
+from datetime import datetime, timezone
+from http.client import HTTPException
+from urllib.request import Request, urlopen
 import json
 import os
 import random
@@ -72,8 +79,13 @@ def run_condition(client, queries: list[dict], qrels: dict, document_map: dict,
             errors[row["error"]] = errors.get(row["error"], 0) + 1
     ticks = os.sysconf("SC_CLK_TCK")
     stages = sorted({key for row in successful for key in row["stage_ms"]})
+    warm_errors = {}
+    for row in warm_rows:
+        if row["error"]:
+            warm_errors[row["error"]] = warm_errors.get(row["error"], 0) + 1
     return {
-        "warmup": {"attempted": warmup, "failed": sum(bool(row["error"]) for row in warm_rows)},
+        "warmup": {"attempted": warmup, "failed": sum(bool(row["error"]) for row in warm_rows),
+                   "errors": warm_errors, "records": warm_rows},
         "summary": {
             "concurrency": concurrency, "attempted": requests, "successful": len(successful),
             "failed": requests - len(successful), "errors": errors, "elapsed_seconds": elapsed,
@@ -94,6 +106,31 @@ def run_condition(client, queries: list[dict], qrels: dict, document_map: dict,
         "load_model": "closed-loop worker threads; request latency excludes client executor queue time",
         "connection_policy": "urllib request per operation; no explicit client connection pool",
     }
+
+
+
+def parse_search_request_count(metrics: str) -> int:
+    if "# TYPE ragops_http_requests_total counter" not in metrics.splitlines():
+        raise ValueError("request-counter instrument is missing")
+    total = 0
+    for labels, raw in re.findall(r"^ragops_http_requests_total\{([^}]*)\}\s+([0-9.eE+-]+)\s*$", metrics, re.MULTILINE):
+        if re.search(r'(?:^|,)method="POST"(?:,|$)', labels) and re.search(r'(?:^|,)route="/v1/search"(?:,|$)', labels):
+            count = float(raw)
+            if not math.isfinite(count) or count < 0 or not count.is_integer():
+                raise ValueError("invalid search-request counter")
+            total += int(count)
+    return total
+
+
+def read_search_request_count(client) -> int:
+    headers = {}
+    if os.environ.get("RAGOPS_API_KEY"):
+        headers["X-API-Key"] = os.environ["RAGOPS_API_KEY"]
+    with urlopen(Request(client.base_url + "/metrics", headers=headers), timeout=client.timeout) as response:
+        raw = response.read(1_000_001)
+    if len(raw) > 1_000_000:
+        raise ValueError("metrics response exceeds the inspection bound")
+    return parse_search_request_count(raw.decode("utf-8"))
 
 
 def main() -> int:
@@ -132,16 +169,65 @@ def main() -> int:
         parser.error("sample query count is outside the training split")
     ids = random.Random(args.seed).sample(sorted(qrels), args.sample_queries)
     queries = [{"_id": query_id, "text": all_queries[query_id]} for query_id in ids]
-    result = run_condition(HTTPClient(args.base_url), queries, qrels, ingested["document_map"],
+    client = HTTPClient(args.base_url)
+    git = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=False)
+    context = {
+        "measurement_utc": datetime.now(timezone.utc).isoformat(),
+        "serving_source_revision": runtime["source_revision"],
+        "harness_git_revision": git.stdout.strip() if git.returncode == 0 else None,
+        "harness_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+    }
+    initial_process, initial_count = None, None
+
+    def reject_before(reason):
+        result = {"schema_version": 1, "phase": args.phase, "observation_status": "invalid",
+                  "invalid_reason": reason, "process_identity_before": initial_process,
+                  "search_counter_before": initial_count, "per_request": [],
+                  "summary": {"requested": args.requests, "attempted": 0, "successful": 0, "failed": 0},
+                  **context}
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        write_json(args.output, result)
+        print(json.dumps(result, allow_nan=False))
+        return 1
+
+    if args.phase != "warm":
+        initial_process = process_snapshot(args.api_pid)
+        if initial_process is None:
+            return reject_before("APIProcessUnavailableBeforeSearch")
+        try:
+            initial_count = read_search_request_count(client)
+        except (OSError, ValueError, HTTPException):
+            return reject_before("SearchCounterUnavailableBeforeSearch")
+        if initial_count != 0:
+            return reject_before("APIHasAlreadyProcessedSearches")
+
+    result = run_condition(client, queries, qrels, ingested["document_map"],
                            ingested["workspace_id"], runtime=runtime, concurrency=args.concurrency,
                            requests=args.requests, warmup=args.warmup,
                            api_pid=args.api_pid, worker_pid=args.worker_pid)
-    if args.phase != "warm" and result["process_snapshots"]["before"]["api"] is None:
-        raise ValueError("API process identity is unavailable for the restart observation")
+    result["observation_status"] = "valid"
+    if args.phase != "warm":
+        snapshots = result["process_snapshots"]
+        identities = [snapshots["before"]["api"], snapshots["after"]["api"]]
+        if any(item is None or item["pid"] != initial_process["pid"]
+               or item["started_ticks"] != initial_process["started_ticks"] for item in identities):
+            result["observation_status"] = "invalid"
+            result["invalid_reason"] = "APIProcessChangedDuringSearch"
+        try:
+            final_count = read_search_request_count(client)
+        except (OSError, ValueError, HTTPException):
+            final_count = None
+        result["restart_observation"] = {"initial_process": initial_process,
+                                          "search_counter_before": initial_count,
+                                          "search_counter_after": final_count}
+        if final_count != 1:
+            result["observation_status"] = "invalid"
+            result["invalid_reason"] = "SearchCounterDoesNotConfirmExactlyOneSearch"
+
     result.update({
         "schema_version": 1, "phase": args.phase, "query_split": "train", "query_mix": queries,
         "seed": args.seed, "request_top_k_chunks": 100, "rerank": False,
-        "dataset_hashes": hashes, "source_revision": runtime["source_revision"],
+        "dataset_hashes": hashes, **context,
         "runtime": runtime,
         "limitations": [
             "First-search means a restarted API with ready dependencies; database and OS caches are not cleared.",
@@ -155,7 +241,8 @@ def main() -> int:
     write_json(args.output, result)
     print(json.dumps({"phase": args.phase, "summary": result["summary"],
                       "process_resources": result["process_resources"]}, indent=2, allow_nan=False))
-    return 0 if result["summary"]["failed"] == 0 and result["warmup"]["failed"] == 0 else 1
+    return 0 if (result["observation_status"] == "valid" and result["summary"]["failed"] == 0
+                 and result["warmup"]["failed"] == 0) else 1
 
 
 if __name__ == "__main__":
