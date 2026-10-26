@@ -9,6 +9,10 @@
 
 [**Watch the two-minute captioned walkthrough →**](docs/assets/ragops-two-minute-walkthrough.mp4)
 
+[Architecture](docs/architecture.md) · [Offline SciFact evidence](docs/benchmarking.md) ·
+[Reproduction commands](benchmarks/retrieval/README.md) · [CI runs](https://github.com/xmike04/RAG_OPS/actions/workflows/ci.yml) ·
+[Security and limitations](docs/security.md)
+
 ![RAGOps read-only operator console](docs/assets/ragops-console.png)
 
 RAGOps turns text and Markdown into searchable chunks, combines lexical and
@@ -55,8 +59,8 @@ flowchart LR
 ```
 
 The API and worker share provider contracts, persistence models, and telemetry.
-PostgreSQL is the system of record; Redis carries background work and transient
-cache state. See [the architecture guide](docs/architecture.md) for request
+PostgreSQL is the system of record; Redis carries background ingestion work.
+Search-result caching is not implemented. See [the architecture guide](docs/architecture.md) for request
 flows, boundaries, and failure behavior.
 
 ## Quick start
@@ -100,12 +104,19 @@ client operation with logs and traces. The complete endpoint guide is in
 
 ## Measured evaluation
 
+### Offline algorithm experiment
+
 The real-model benchmark runs the 5,183-document BEIR SciFact corpus and 300
 held-out test queries through four retrieval strategies: canonical Okapi BM25,
 normalized `all-MiniLM-L6-v2` embeddings, RRF fusion, and a Sentence
 Transformers cross-encoder trained only on SciFact's disjoint training split.
 It records Recall@10, MRR@10, nDCG@10, and per-query p50/p95 latency alongside
 model, dataset, environment, and code hashes.
+
+This benchmark does not call FastAPI or PostgreSQL. The serving application uses
+PostgreSQL `ts_rank_cd` cover-density lexical ranking and sequential lexical/vector
+queries; it does not run the benchmark's Okapi BM25 implementation. These quality
+scores and CPU timings must not be described as API measurements.
 
 | Pipeline | Recall@10 | MRR@10 | nDCG@10 | p50 | p95 |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -116,11 +127,17 @@ model, dataset, environment, and code hashes.
 
 RRF was the strongest tested configuration. The deliberately small, train-only
 cross-encoder was a negative result: it was slower and reduced held-out quality,
-so it is retained as evidence rather than presented as an improvement. The live
-API baseline completed **9,234/9,234 requests** at concurrency 8 with **24.56 ms
+so it is retained as evidence rather than presented as an improvement.
+
+### Controlled local HTTP baseline
+
+The `/v1/search` baseline completed **9,234/9,234 requests** at concurrency 8 with **24.56 ms
 p50**, **31.75 ms p95**, and **307.69 requests/second** using deterministic local
-providers. These numbers describe the recorded CPU host and workload, not a
-production SLO.
+providers. It repeated one query for 30 seconds after 10 warm-up requests. It
+does not measure generation, a varied workload, cold-start behavior, or learned
+model inference. These numbers describe the recorded CPU host and workload, not
+a production SLO. Corpus/chunk counts and process resource usage were not retained
+in this HTTP artifact.
 
 See the [benchmark protocol and retained results](docs/benchmarking.md) and the
 [HTTP load-test protocol](docs/load-testing.md). The commands below exercise the

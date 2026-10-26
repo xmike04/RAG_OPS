@@ -11,11 +11,18 @@ Keep these labels on every result:
 | --- | --- | --- |
 | Evaluator fixture | `evals/runs/reference.jsonl` through `evals/evaluate.py` | Metric calculation, input validation, and deterministic CI behavior |
 | Real-model retrieval benchmark | A versioned corpus and queries through named embedding/reranking models | Comparative retrieval quality and in-process stage latency on the recorded machine |
+| Serving-path quality evaluation | SciFact ingested into PostgreSQL, queried through `/v1/search`, scored after chunk-to-document mapping | Quality and HTTP/stage latency of the configured application; no result is claimed until a run is retained |
 | Live API load test | Concurrent HTTP traffic through the deployed stack | End-to-end latency, throughput, and errors for that environment |
 
 Fixture scores and fixture latency are not product performance. A real-model
 result is publishable only when its raw run, configuration, environment, and
 checksums are retained together.
+
+The retained SciFact run uses `rank_bm25.BM25Okapi`. The application instead uses
+PostgreSQL `ts_rank_cd` cover-density ranking, then pgvector retrieval, sequentially
+on one asynchronous database session. An offline RRF improvement does not
+establish an improvement in the serving path. HTTP load results cover the search
+endpoint only; they exclude answer generation and do not establish retrieval quality.
 
 ## Dataset provenance
 
