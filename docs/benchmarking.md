@@ -162,3 +162,7 @@ serialization, queueing, database contention, and concurrent tenants. Pair it
 with [`load-testing.md`](load-testing.md) before making a production capacity
 decision. The lexical faithfulness proxy remains regression evidence, not proof
 that generated claims are entailed.
+
+## Retained serving-path result
+
+The [full serving baseline](https://github.com/xmike04/RAG_OPS/blob/df271a5bf9adc8c610fa8ba19f18cedea6c7ee5e/benchmarks/service/results/scifact/2026-10-26-local-40380993127/README.md) evaluates 5,183 ingested documents / 5,887 chunks and 300 held-out queries through the actual HTTP application. Its matching local-provider configuration achieved 0.4097 Recall@10 and 0.3134 nDCG@10. This is separate from the offline Okapi BM25/MiniLM experiment; the report retains raw outputs, exact boundaries, limitations, and independent qrel/checksum verification. No parameter tuning followed test observation.

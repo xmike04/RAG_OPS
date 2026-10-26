@@ -10,6 +10,7 @@
 [**Watch the two-minute captioned walkthrough →**](docs/assets/ragops-two-minute-walkthrough.mp4)
 
 [Architecture](docs/architecture.md) · [Offline SciFact evidence](docs/benchmarking.md) ·
+[Serving-path baseline](https://github.com/xmike04/RAG_OPS/blob/df271a5bf9adc8c610fa8ba19f18cedea6c7ee5e/benchmarks/service/results/scifact/2026-10-26-local-40380993127/README.md) ·
 [Reproduction commands](benchmarks/retrieval/README.md) · [CI runs](https://github.com/xmike04/RAG_OPS/actions/workflows/ci.yml) ·
 [Security and limitations](docs/security.md)
 
@@ -156,9 +157,33 @@ python evals/evaluate.py \
 It reports macro Recall@k, MRR, binary nDCG, claim-level citation coverage, a
 document-overlap faithfulness proxy, and latency count/p50/p95/max. The checked-in
 run is a **deterministic evaluator fixture**, not a measured claim about the live
-application. No live-system quality baseline has been published yet. Record a
+application. A separately retained serving-path baseline is summarized below. Record a
 release baseline only from a versioned corpus, query set, configuration, and
 fresh run artifact; the protocol is in [`docs/evaluation.md`](docs/evaluation.md).
+
+
+### Actual serving-path quality baseline
+
+The [October 26 serving run](https://github.com/xmike04/RAG_OPS/blob/df271a5bf9adc8c610fa8ba19f18cedea6c7ee5e/benchmarks/service/results/scifact/2026-10-26-local-40380993127/README.md) ingested 5,183 SciFact documents into
+5,887 chunks through the application and evaluated all 300 held-out test queries.
+The configured path used matching feature-hash-384 vectors, PostgreSQL lexical
+ranking, RRF k=60, a 100-candidate cap, and no reranking or generation.
+
+| Serving quality | Held-out test result |
+| --- | ---: |
+| Recall@10 | 0.4097 |
+| Recall@100, within the returned chunk window | 0.6211 |
+| MRR@10 | 0.2881 |
+| nDCG@10 | 0.3134 |
+
+A separate serial HTTP timing table in the report records 20.70 ms p50 and
+23.76 ms p95 with no failed test requests. The 100 returned chunks represented
+90–100 unique documents. This is distinct from both the offline MiniLM/BM25
+experiment and the earlier repeated-query load test. The configurations differ
+in multiple components; the gap is not an isolated causal ablation. Raw mappings,
+qrel-recomputed scores, runtime/index metadata, and exact source/data hashes are
+retained. Process resources, generation, and production load capacity are not
+established by this quality run.
 
 ## Quality gates
 
