@@ -14,5 +14,6 @@ def test_search_counter_uses_the_public_route_template() -> None:
     expected = 'ragops_http_requests_total{method="POST",route="/v1/search",status="422"}'
     assert expected in after, after
     def count(snapshot: str) -> float:
-        return sum(float(line.split()[-1]) for line in snapshot.splitlines() if line.startswith(expected))
+        values = [line.split()[-1] for line in snapshot.splitlines() if line.startswith(expected)]
+        return sum(float(value) for value in values)
     assert count(after) - count(before) == 1
