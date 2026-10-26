@@ -147,5 +147,19 @@ class ServiceScoringTests(unittest.TestCase):
             compare(current, baseline, "recall@10", samples=100, seed=0)
 
 
+    def test_provider_validation_checks_requested_reranking_metadata(self):
+        validate = self.require("validate_response_providers")
+        runtime = {"query_embedding": {"provider": "local", "model": "feature-hash-384"},
+                   "reranking": {"provider": "local", "model": "lexical-overlap-v1"}}
+        actual = {"embedding_provider": "local", "embedding_model": "feature-hash-384",
+                  "rerank_provider": "local", "rerank_model": "lexical-overlap-v1"}
+        validate(actual, runtime, rerank=True)
+        with self.assertRaises(ValueError):
+            validate(actual, runtime, rerank=False)
+        actual["rerank_model"] = "different-model"
+        with self.assertRaises(ValueError):
+            validate(actual, runtime, rerank=True)
+
+
 if __name__ == "__main__":
     unittest.main()

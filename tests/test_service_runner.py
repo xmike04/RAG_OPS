@@ -78,5 +78,44 @@ class ServiceRunnerTests(unittest.TestCase):
         self.assertEqual(rows[0]["ranked_document_ids"], ["A"])
 
 
+    def test_consistently_changed_response_provider_cannot_validate_against_a_stale_snapshot(self):
+        evaluate = self.require("evaluate_queries")
+        runtime = {
+            "query_embedding": {"provider": "sentence-transformers", "model": "MiniLM"},
+            "reranking": {"provider": "local", "model": "lexical-overlap-v1"},
+        }
+        queries = [{"_id": "q1", "text": "query"}, {"_id": "q2", "text": "query"}]
+        try:
+            rows = evaluate(FixtureClient(), queries, {"q1": {"A": 1}, "q2": {"A": 1}},
+                            {"u1": "A"}, "workspace", top_k=100, rerank=False, runtime=runtime)
+        except TypeError:
+            self.fail("evaluation does not accept and enforce captured runtime provider metadata")
+        self.assertEqual([row["error"] for row in rows], ["ProviderMismatchError", "ProviderMismatchError"])
+
+    def test_truncated_response_is_counted_and_later_queries_still_run(self):
+        from http.client import IncompleteRead
+
+        class TruncatedOnceClient(FixtureClient):
+            def __init__(self):
+                super().__init__()
+                self.first = True
+
+            def request(self, method, path, payload=None):
+                if path == "/v1/search" and self.first:
+                    self.first = False
+                    raise IncompleteRead(b'{"results":', 100)
+                return super().request(method, path, payload)
+
+        evaluate = self.require("evaluate_queries")
+        try:
+            rows = evaluate(TruncatedOnceClient(), [{"_id": "q1", "text": "query"}, {"_id": "q2", "text": "query"}],
+                            {"q1": {"A": 1}, "q2": {"A": 1}}, {"u1": "A"}, "workspace",
+                            top_k=100, rerank=False)
+        except IncompleteRead:
+            self.fail("a truncated HTTP response escaped instead of becoming a failed-query record")
+        self.assertEqual(rows[0]["error"], "IncompleteRead")
+        self.assertEqual(rows[1]["metrics"]["recall@10"], 1.0)
+
+
 if __name__ == "__main__":
     unittest.main()
