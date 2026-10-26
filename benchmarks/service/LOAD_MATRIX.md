@@ -13,8 +13,8 @@ and exactly one accepted search afterward. Invalid observations are preserved
 and exit nonzero. The orchestrator must still control the restart and establish
 that the observed PID serves the tested origin; the CLI flag alone is insufficient.
 
-The five restart observations use recorded seeded training queries and distinct
-API identities. Database and OS caches are retained. They are not host/database
+The five first-search observations use recorded seeded training queries and distinct
+API identities: the initial API after ingestion, then four newly restarted APIs. Database and OS caches are retained. They are not host/database
 cold starts or a paired estimate of cold-start penalty against the warm mix.
 Five observations do not support a reliable tail-latency claim.
 
