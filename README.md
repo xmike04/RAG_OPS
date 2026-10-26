@@ -53,9 +53,8 @@ flowchart LR
   WORKER --> DB
   API --> PROVIDERS[Embedding / reranking / generation providers]
   WORKER --> PROVIDERS
-  API --> PROM[Prometheus]
-  WORKER --> PROM
-  PROM --> GRAFANA[Grafana]
+  PROM[Prometheus] -->|scrape API metrics| API
+  GRAFANA[Grafana] -->|query| PROM
 ```
 
 The API and worker share provider contracts, persistence models, and telemetry.
