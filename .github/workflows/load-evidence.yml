@@ -1,0 +1,211 @@
+name: Collect controlled mixed-query load evidence
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: ragops
+          POSTGRES_USER: ragops
+          POSTGRES_PASSWORD: ragops
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U ragops -d ragops"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      RAGOPS_ENVIRONMENT: test
+      RAGOPS_DATABASE_URL: postgresql+asyncpg://ragops:ragops@localhost:5432/ragops
+      RAGOPS_REDIS_URL: redis://localhost:6379/0
+      RAGOPS_EMBEDDING_PROVIDER: local
+      RAGOPS_RERANKER_PROVIDER: local
+      RAGOPS_GENERATION_PROVIDER: local
+      RAGOPS_RETRIEVAL_CANDIDATE_LIMIT: '100'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 2d40fd13844ff4436f54c53fbfde2320670d5148
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.9.18'
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - run: make backend-install
+      - name: Collect train-query concurrency and process-first-search conditions
+        run: |
+          set -euo pipefail
+          cd backend
+          .venv/bin/alembic upgrade head
+          cd ..
+          sample=0
+          start_api() {
+            backend/.venv/bin/uvicorn ragops.main:app --host 127.0.0.1 --port 8000 > "$RUNNER_TEMP/load-api-$sample.log" 2>&1 &
+            api_pid=$!
+            MEASURED_API_PID="$api_pid" python3 - <<'PY'
+          import os, time
+          from benchmarks.service.run import HTTPClient
+          client = HTTPClient("http://127.0.0.1:8000", timeout=3)
+          deadline = time.monotonic() + 45
+          while True:
+              os.kill(int(os.environ["MEASURED_API_PID"]), 0)
+              try:
+                  client.request("GET", "/ready")
+                  break
+              except (OSError, RuntimeError):
+                  if time.monotonic() >= deadline:
+                      raise
+                  time.sleep(.25)
+          PY
+          }
+          backend/.venv/bin/python -m ragops.worker.main > "$RUNNER_TEMP/load-worker.log" 2>&1 &
+          worker_pid=$!
+          start_api
+          trap 'kill "$api_pid" "$worker_pid" 2>/dev/null || true' EXIT
+          python3 -m benchmarks.service.run ingest --output-dir benchmarks/service/results/ci-load-run
+          benchmark_workspace=$(python3 -c 'import json; print(json.load(open("benchmarks/service/results/ci-load-run/ingest.json"))["workspace_id"])')
+          benchmark_source=$(git rev-parse HEAD)
+          backend/.venv/bin/python -m benchmarks.service.capture --workspace-id "$benchmark_workspace" --source-revision "$benchmark_source" > benchmarks/service/results/ci-load-run/runtime.json
+          python3 -m benchmarks.service.load_matrix --ingest-dir benchmarks/service/results/ci-load-run --runtime benchmarks/service/results/ci-load-run/runtime.json --output benchmarks/service/results/ci-load-run/first-0.json --phase first-search-after-api-restart --requests 1 --warmup 0 --concurrency 1 --seed 0 --api-pid "$api_pid" --worker-pid "$worker_pid" || test "$?" -eq 1
+          for concurrency in 1 4 8; do
+            python3 -m benchmarks.service.load_matrix --ingest-dir benchmarks/service/results/ci-load-run --runtime benchmarks/service/results/ci-load-run/runtime.json --output "benchmarks/service/results/ci-load-run/warm-c$concurrency.json" --requests 300 --warmup 30 --concurrency "$concurrency" --seed 0 --api-pid "$api_pid" --worker-pid "$worker_pid" || test "$?" -eq 1
+          done
+          for sample in 1 2 3 4; do
+            kill "$api_pid"
+            wait "$api_pid" || true
+            start_api
+            python3 -m benchmarks.service.load_matrix --ingest-dir benchmarks/service/results/ci-load-run --runtime benchmarks/service/results/ci-load-run/runtime.json --output "benchmarks/service/results/ci-load-run/first-$sample.json" --phase first-search-after-api-restart --requests 1 --warmup 0 --concurrency 1 --seed "$sample" --api-pid "$api_pid" --worker-pid "$worker_pid" || test "$?" -eq 1
+          done
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path("benchmarks/service/results/ci-load-run")
+          conditions = [json.loads(path.read_text()) for path in sorted(root.glob("first-*.json")) + sorted(root.glob("warm-c*.json"))]
+          assert len(conditions) == 8
+          first = [row for row in conditions if row["phase"] == "first-search-after-api-restart"]
+          assert len(first) == 5
+          identities = set()
+          for row in first:
+              assert row["observation_status"] == "valid"
+              observation = row["restart_observation"]
+              assert observation["search_counter_before"] == 0 and observation["search_counter_after"] == 1
+              process = observation["initial_process"]
+              identities.add((process["pid"], process["started_ticks"]))
+          assert len(identities) == 5, "first-search observations reused an API identity"
+          warm = [row for row in conditions if row["phase"] == "warm"]
+          assert {row["summary"]["concurrency"] for row in warm} == {1, 4, 8}
+          for row in warm:
+              assert row["summary"]["attempted"] == 300
+              assert row["summary"]["successful"] + row["summary"]["failed"] == 300
+              assert row["warmup"]["attempted"] == 30
+              assert row["query_mix"] == warm[0]["query_mix"]
+              assert all(value is not None for value in row["process_resources"].values()), "process resource observation missing"
+          runtime = json.loads((root / "runtime.json").read_text())
+          summary = {
+              "schema_version": 1, "collection_run_id": os.environ["GITHUB_RUN_ID"],
+              "workflow_revision": os.environ["GITHUB_SHA"], "serving_and_harness_checkout": runtime["source_revision"],
+              "corpus": runtime["corpus"], "query_embedding": runtime["query_embedding"], "chunking": runtime["chunking"],
+              "postgres": runtime["postgres"],
+              "conditions": [{key: row[key] for key in ("phase", "seed", "summary", "warmup", "process_resources", "process_snapshots", "harness_git_revision", "harness_source_sha256", "measurement_utc", "observation_status")} | {
+                  "restart_observation": row.get("restart_observation"), "query_ids": [q["_id"] for q in row["query_mix"]],
+              } for row in conditions],
+              "limits": ["Training queries only; deterministic local providers and no generation.",
+                         "Closed-loop throughput, not a production arrival-rate/capacity SLA.",
+                         "Five first-search observations have ready dependencies and retained DB/OS caches; no cold-tail or paired cold-penalty claim.",
+                         "CPU tick deltas and RSS endpoints; not peak RSS or database/Redis CPU attribution.",
+                         "Billing, GPU and learned inference were not measured."],
+          }
+          (root / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+          print("LOAD_MATRIX_SUMMARY " + json.dumps(summary, sort_keys=True))
+          PY
+      - name: Package exact raw evidence and environment
+        if: always()
+        run: |
+          backend/.venv/bin/python - <<'PY'
+          import gzip, hashlib, importlib.metadata, json, os, platform, subprocess
+          from pathlib import Path
+          root = Path("benchmarks/service/results/ci-load-run")
+          target = Path("retained-load-evidence")
+          target.mkdir(exist_ok=False)
+          manifest = {}
+          if root.exists():
+              for path in sorted(root.rglob("*")):
+                  if path.is_file():
+                      relative = path.relative_to(root)
+                      output = target / str(relative)
+                      output = output.with_name(output.name + ".gz")
+                      output.parent.mkdir(parents=True, exist_ok=True)
+                      raw = path.read_bytes()
+                      output.write_bytes(gzip.compress(raw, mtime=0))
+                      manifest[str(relative)] = hashlib.sha256(raw).hexdigest()
+          def optional(path):
+              item = Path(path)
+              return item.read_text().strip() if item.exists() else None
+          environment = {
+              "source_revision": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+              "tracked_source_dirty": bool(subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=no"], text=True).strip()),
+              "platform": platform.platform(), "python": platform.python_version(),
+              "logical_cpu_count_visible": os.cpu_count(),
+              "memory_info": optional("/proc/meminfo"),
+              "cgroup_cpu_max": optional("/sys/fs/cgroup/cpu.max"),
+              "cgroup_memory_max": optional("/sys/fs/cgroup/memory.max"),
+              "backend_lock_sha256": hashlib.sha256(Path("backend/uv.lock").read_bytes()).hexdigest(),
+              "packages": {d.metadata["Name"]: d.version for d in importlib.metadata.distributions() if d.metadata["Name"]},
+              "files_uncompressed_sha256": manifest,
+              "evidence_class": "Mixed train-query load and process endpoint resources; deterministic providers; generation, billing, database CPU, and production capacity not measured",
+          }
+          if (root / "summary.json").exists():
+              (target / "summary.json").write_bytes((root / "summary.json").read_bytes())
+          (target / "environment.json").write_text(json.dumps(environment, indent=2, sort_keys=True) + "\n")
+          (target / "README.md").write_text("# Controlled SciFact train-query load evidence\n\nMeasured source is identified in environment.json. Each .gz file contains the exact original harness output; the manifest hashes the uncompressed bytes. Input data and attribution retain the SciFact licenses in benchmarks/datasets/scifact/LICENSES.md. Training queries only. These are deterministic-provider load observations with process resources, not learned inference, cold-host startup, peak RSS, billing, or production capacity/SLO evidence.\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: controlled-scifact-load-evidence
+          path: retained-load-evidence/
+          retention-days: 30
+
+  retain-in-review-branch:
+    needs: evaluate
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 4 && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: p1/load-matrix-20261026
+      - uses: actions/download-artifact@v4
+        with:
+          name: controlled-scifact-load-evidence
+          path: evidence
+      - name: Commit public-dataset evidence only to the review branch
+        run: |
+          set -euo pipefail
+          target="benchmarks/service/results/load/2026-10-26-local-$GITHUB_RUN_ID"
+          mkdir -p "$target"
+          cp -R evidence/. "$target/"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f -- "$target"
+          git commit -m "bench: retain controlled mixed-query load and resource evidence"
+          git push origin HEAD:refs/heads/p1/load-matrix-20261026
