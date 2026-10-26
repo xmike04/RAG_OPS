@@ -74,7 +74,7 @@ from the providers package:
 
 | Stage | Default, deterministic local path | Optional path |
 | --- | --- | --- |
-| Embedding | `HashEmbeddingProvider`: hash-based vectors, no learned semantics | `SentenceTransformersEmbeddingProvider`: learned model running in the API/worker process |
+| Embedding | `HashEmbeddingProvider`: hash-based vectors in the API and worker | `SentenceTransformersEmbeddingProvider`: learned model selectable in the API; the default worker still hard-codes hash embeddings |
 | Reranking | `LexicalRerankingProvider`: token-overlap fixture | `SentenceTransformersCrossEncoderProvider`: learned cross-encoder in the API process |
 | Generation | `LocalGroundedGenerator`: extracts passages and adds numbered references | `OpenAICompatibleGenerator`: sends the query and retrieved passages to the configured remote endpoint |
 
@@ -82,6 +82,11 @@ Local learned models still require model downloads or pre-provisioned model
 artifacts; they do not require a hosted inference API key. Remote generation
 requires endpoint credentials and can incur provider charges. The exported
 OpenAI-compatible embedding adapter is not selected by the current search factory.
+
+The worker factory does not currently honor the learned embedding provider
+selection. A learned query vector must not be compared against hash-based document
+vectors: those are different vector spaces even when their dimensions match.
+Correcting this requires a separately tested worker/provider change and re-ingestion.
 
 ## Request flows
 
