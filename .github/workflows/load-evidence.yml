@@ -1,7 +1,6 @@
 name: Collect controlled mixed-query load evidence
 
 on:
-  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -184,28 +183,3 @@ jobs:
           path: retained-load-evidence/
           retention-days: 30
 
-  retain-in-review-branch:
-    needs: evaluate
-    if: github.event_name == 'pull_request' && github.event.pull_request.number == 4 && github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: p1/load-matrix-20261026
-      - uses: actions/download-artifact@v4
-        with:
-          name: controlled-scifact-load-evidence
-          path: evidence
-      - name: Commit public-dataset evidence only to the review branch
-        run: |
-          set -euo pipefail
-          target="benchmarks/service/results/load/2026-10-26-local-$GITHUB_RUN_ID"
-          mkdir -p "$target"
-          cp -R evidence/. "$target/"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f -- "$target"
-          git commit -m "bench: retain controlled mixed-query load and resource evidence"
-          git push origin HEAD:refs/heads/p1/load-matrix-20261026
