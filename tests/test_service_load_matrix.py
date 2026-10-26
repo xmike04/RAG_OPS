@@ -5,7 +5,9 @@ from benchmarks.service import load_matrix
 class Client:
     def __init__(self, fail=False, empty=False):
         self.fail, self.empty = fail, empty
+        self.calls = 0
     def request(self, method, path, payload=None):
+        self.calls += 1
         if self.fail:
             raise IncompleteRead(b"partial", 10)
         hits = [] if self.empty else [{"chunk_id": "c", "document_id": "u",
@@ -62,6 +64,84 @@ class LoadMatrixTests(unittest.TestCase):
                 function(Client(), [{"_id": "q1", "text": "alpha"}], {"q1": {"A": 1}},
                          {"u": "A"}, "workspace", runtime=None,
                          concurrency=concurrency, requests=requests, warmup=warmup)
+
+
+    def test_warmup_failures_keep_sanitized_categories_and_query_ids(self):
+        result = self.measure(Client(fail=True))
+        self.assertEqual(result["warmup"].get("errors"), {"IncompleteRead": 2})
+        self.assertEqual([row["query_id"] for row in result["warmup"].get("records", [])], ["q1", "q2"])
+
+    def test_search_counter_parser_distinguishes_missing_metrics_from_zero_searches(self):
+        function = getattr(load_matrix, "parse_search_request_count", None)
+        self.assertTrue(callable(function), "first-search counter verification is not implemented")
+        family = "# TYPE ragops_http_requests_total counter\n"
+        self.assertEqual(function(family), 0)
+        self.assertEqual(function(family +
+            'ragops_http_requests_total{method="GET",route="/ready",status="200"} 9.0\n' +
+            'ragops_http_requests_total{method="POST",route="/v1/search",status="200"} 1.0\n' +
+            'ragops_http_requests_total{method="POST",route="/v1/search",status="500"} 1.0\n'), 2)
+        with self.assertRaises(ValueError):
+            function("# A missing instrument is not a zero measurement\n")
+
+    def cli_observation(self, snapshot_mode):
+        import contextlib
+        import io
+        import json
+        import sys
+        import tempfile
+        from pathlib import Path
+        from types import SimpleNamespace
+        from unittest.mock import patch
+
+        client = Client()
+        before = {"pid": 999, "started_ticks": 10, "cpu_ticks": 100, "rss_bytes": 1000}
+        after = {**before, "started_ticks": 11, "cpu_ticks": 150}
+        def snapshot(pid):
+            if pid is None or snapshot_mode == "unavailable":
+                return None
+            return before if client.calls == 0 else after
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "ingest.json").write_text(json.dumps({
+                "dataset_hashes": {"fixture": "hash"}, "workspace_id": "workspace", "document_map": {"u": "A"}}))
+            runtime = {"query_embedding": {"provider": "local", "model": "feature-hash-384", "dimensions": 384},
+                       "ingestion_embedding": {"provider": "local", "model": "feature-hash-384", "dimensions": 384},
+                       "settings": {"retrieval_candidate_limit": 100},
+                       "corpus": {"workspace_id": "workspace", "indexed_documents": 1},
+                       "source_revision": "a" * 40}
+            (root / "runtime.json").write_text(json.dumps(runtime))
+            output = root / "observation.json"
+            argv = ["load_matrix", "--ingest-dir", str(root), "--runtime", str(root / "runtime.json"),
+                    "--output", str(output), "--phase", "first-search-after-api-restart",
+                    "--api-pid", "999", "--concurrency", "1", "--requests", "1", "--warmup", "0",
+                    "--sample-queries", "1"]
+            with patch.object(sys, "argv", argv), patch.object(load_matrix, "HTTPClient", return_value=client), \
+                 patch.object(load_matrix, "verify_manifest", return_value={"fixture": "hash"}), \
+                 patch.object(load_matrix, "load_qrels", return_value={"q1": {"A": 1}}), \
+                 patch.object(load_matrix, "load_queries", return_value=[SimpleNamespace(query_id="q1", text="alpha")]), \
+                 patch.object(load_matrix, "process_snapshot", side_effect=snapshot), \
+                 patch.object(load_matrix, "read_search_request_count", side_effect=lambda unused: client.calls, create=True), \
+                 contextlib.redirect_stdout(io.StringIO()):
+                try:
+                    code = load_matrix.main()
+                except ValueError:
+                    code = 1
+            result = json.loads(output.read_text()) if output.exists() else None
+        return client.calls, code, result
+
+    def test_missing_restart_process_is_rejected_before_consuming_the_search(self):
+        calls, code, result = self.cli_observation("unavailable")
+        self.assertEqual(calls, 0)
+        self.assertEqual(code, 1)
+        self.assertIsNotNone(result)
+        self.assertEqual(result["observation_status"], "invalid")
+
+    def test_changed_restart_process_retains_an_invalid_observation(self):
+        calls, code, result = self.cli_observation("changed")
+        self.assertEqual(calls, 1)
+        self.assertEqual(code, 1)
+        self.assertIsNotNone(result)
+        self.assertEqual(result["observation_status"], "invalid")
 
 if __name__ == "__main__":
     unittest.main()
