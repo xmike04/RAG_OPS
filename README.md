@@ -11,6 +11,7 @@
 
 [Architecture](docs/architecture.md) · [Offline SciFact evidence](docs/benchmarking.md) ·
 [Serving-path baseline](https://github.com/xmike04/RAG_OPS/blob/df271a5bf9adc8c610fa8ba19f18cedea6c7ee5e/benchmarks/service/results/scifact/2026-10-26-local-40380993127/README.md) ·
+[Mixed-query load matrix](https://github.com/xmike04/RAG_OPS/blob/5549d6792a6f5f4c6126c41deb9f1e16ec5e9264/benchmarks/service/results/load/2026-10-26-local-40389341425/README.md) ·
 [Reproduction commands](benchmarks/retrieval/README.md) · [CI runs](https://github.com/xmike04/RAG_OPS/actions/workflows/ci.yml) ·
 [Security and limitations](docs/security.md)
 
@@ -129,7 +130,28 @@ RRF was the strongest tested configuration. The deliberately small, train-only
 cross-encoder was a negative result: it was slower and reduced held-out quality,
 so it is retained as evidence rather than presented as an improvement.
 
-### Controlled local HTTP baseline
+### Controlled mixed-query HTTP matrix
+
+The [October 26 matrix](https://github.com/xmike04/RAG_OPS/blob/5549d6792a6f5f4c6126c41deb9f1e16ec5e9264/benchmarks/service/results/load/2026-10-26-local-40389341425/README.md) used the same 30 seeded training queries at each
+concurrency, 30 separate warmups, and 300 measured requests per condition against
+5,183 documents / 5,887 chunks. Providers were matching local hashes; reranking
+and generation were disabled.
+
+| Concurrency | Requests / failures | p50 | p95 | p99 | Successful requests/s |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1 | 300 / 0 | 51.46 ms | 54.73 ms | 92.68 ms | 18.98 |
+| 4 | 300 / 0 | 97.61 ms | 137.22 ms | 150.81 ms | 39.34 |
+| 8 | 300 / 0 | 163.42 ms | 252.24 ms | 317.69 ms | 47.13 |
+
+Higher observed throughput came with higher latency. The report retains API/worker
+CPU ticks, RSS endpoints, index definitions, source/data hashes, and raw outcomes.
+Five first-search observations verify process/counter continuity: one after
+ingestion, then four API restarts with ready dependencies and retained DB/OS
+caches. They do not establish a cold-start percentile. This single closed-loop
+collection is not a production capacity/SLO, peak-RSS, learned-inference, or cost
+measurement.
+
+### Historical repeated-query HTTP baseline
 
 The `/v1/search` baseline completed **9,234/9,234 requests** at concurrency 8 with **24.56 ms
 p50**, **31.75 ms p95**, and **307.69 requests/second** using deterministic local
