@@ -10,7 +10,7 @@ rankings, reranks the shortlist, and produces grounded answers with citations.
 ## Runtime topology
 
 ```mermaid
-flowchart LR
+flowchart TD
   U[Operator / API client] --> W[React console]
   U --> A[FastAPI API]
   W --> A
@@ -18,17 +18,22 @@ flowchart LR
   A --> R[(Redis)]
   A --> L[LLM provider]
   R --> Q[Ingestion worker]
-  Q --> E[Embedding provider]
+  A --> E[Embedding provider]
+  A --> X[Reranking provider]
+  Q --> E
   Q --> P
-  A --> M[Prometheus]
-  Q --> M
-  M --> G[Grafana]
+  M[Prometheus] -->|scrape /metrics| A
+  G[Grafana] -->|query| M
 ```
 
 The API is the only public application boundary. PostgreSQL is authoritative for
-documents, chunks, jobs, and query traces. Redis is transient: queued ingestion
-work and cache entries must be safe to recreate. The worker is horizontally
+documents, chunks, jobs, and query traces. Redis carries the transient ingestion
+queue; the current search path does not implement a result cache. The worker is horizontally
 scalable only when job claim and document finalization remain idempotent.
+
+The checked-in Prometheus configuration scrapes the API's `/metrics` endpoint.
+The separate worker process has no metrics HTTP server; collecting its counters
+would require a worker exporter or explicit multiprocess configuration.
 
 ## Stable API contract
 
@@ -55,12 +60,33 @@ the contribution of each retriever. A reranker receives only the fused shortlist
 and returns a normalized score plus provider/model metadata. Search responses and
 query traces expose stage latency without leaking document contents into logs.
 
+The serving lexical query uses PostgreSQL `plainto_tsquery` and `ts_rank_cd`
+cover-density ranking. The standalone SciFact experiment uses
+`rank_bm25.BM25Okapi`. They are different retrieval implementations; the
+offline BM25/RRF scores are not quality measurements of this PostgreSQL API.
+See [PostgreSQL's ranking documentation](https://www.postgresql.org/docs/16/textsearch-controls.html#TEXTSEARCH-RANKING).
+
 ## Provider contract
 
-Embedding, reranking, and generation use typed interfaces. Deterministic local
-providers keep tests and the demo credential-free. Optional production providers
-can load local Hugging Face models or call an OpenAI-compatible endpoint. Provider
-selection is configuration-driven and validated at startup.
+Provider selection is configuration-driven. These are the implementations wired
+by `build_search_service` and `build_generator`, rather than every adapter exported
+from the providers package:
+
+| Stage | Default, deterministic local path | Optional path |
+| --- | --- | --- |
+| Embedding | `HashEmbeddingProvider`: hash-based vectors in the API and worker | `SentenceTransformersEmbeddingProvider`: learned model selectable in the API; the default worker still hard-codes hash embeddings |
+| Reranking | `LexicalRerankingProvider`: token-overlap fixture | `SentenceTransformersCrossEncoderProvider`: learned cross-encoder in the API process |
+| Generation | `LocalGroundedGenerator`: extracts passages and adds numbered references | `OpenAICompatibleGenerator`: sends the query and retrieved passages to the configured remote endpoint |
+
+Local learned models still require model downloads or pre-provisioned model
+artifacts; they do not require a hosted inference API key. Remote generation
+requires endpoint credentials and can incur provider charges. The exported
+OpenAI-compatible embedding adapter is not selected by the current search factory.
+
+The worker factory does not currently honor the learned embedding provider
+selection. A learned query vector must not be compared against hash-based document
+vectors: those are different vector spaces even when their dimensions match.
+Correcting this requires a separately tested worker/provider change and re-ingestion.
 
 ## Request flows
 
@@ -95,17 +121,21 @@ sequenceDiagram
   participant C as Client
   participant A as API
   participant P as PostgreSQL
+  participant E as Embedder
   participant X as Reranker
   participant L as Generator
   C->>A: POST /v1/query
-  par candidate generation
-    A->>P: full-text search
-  and
-    A->>P: vector similarity search
-  end
+  A->>E: embed query
+  E-->>A: query vector
+  A->>P: lexical search using ts_rank_cd
+  P-->>A: lexical candidates
+  A->>P: pgvector similarity search
+  P-->>A: vector candidates
   A->>A: reciprocal-rank fusion
-  A->>X: fused shortlist
-  X-->>A: normalized rerank scores
+  opt rerank enabled and candidates present
+    A->>X: fused shortlist
+    X-->>A: rerank scores
+  end
   A->>L: query + selected chunks
   L-->>A: answer + citations
   A->>P: persist trace metadata
@@ -115,6 +145,12 @@ sequenceDiagram
 `/v1/search` ends after ranking. `/v1/query` continues through generation. Both
 flows use the same retrieval stages so the search view can explain the context
 chosen for an answer.
+
+Embedding, lexical retrieval, vector retrieval, fusion, and optional reranking
+run in that order in `SearchService.search`. The two database operations are
+awaited sequentially because they share one SQLAlchemy `AsyncSession`.
+[SQLAlchemy requires a separate session per concurrent task](https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html#using-asyncsession-with-concurrent-tasks);
+parallel retrieval would require an explicit session/transaction design change.
 
 ## Data ownership and isolation
 
@@ -140,8 +176,8 @@ inspection; treat the trace store and API as sensitive data surfaces.
 | Provider call fails | Job records a safe error category and can be retried |
 | Redis is unavailable | Readiness fails; accepted work is never reported as complete |
 | PostgreSQL is unavailable | Readiness fails and state-changing operations reject |
-| Reranker is unavailable | Behavior follows configured fail-open/fail-closed policy |
-| Generator returns invalid citations | Response validation rejects unknown chunk IDs |
+| Reranker is unavailable | Its exception propagates; no configurable fail-open policy is implemented |
+| Generator returns invalid citation markers | Sources are constructed from retrieved hits, but generated `[n]` markers are not parsed or validated; semantic grounding is not established |
 
 The liveness endpoint reports that the process can serve requests. Readiness is
 stricter and represents dependencies needed for normal traffic. Neither endpoint
@@ -164,6 +200,11 @@ The system intentionally separates three signals:
 - quality: offline relevance and citation metrics from a versioned evaluation.
 
 Runtime telemetry cannot establish retrieval quality by itself.
+
+`QueryService` currently writes `estimated_cost_usd=0` and defaults `cache_hit`
+to false. These are telemetry placeholders, not measured zero-cost inference or
+evidence of cache effectiveness. Provider billing, process RSS/CPU, and worker
+metrics need separately collected evidence.
 
 ## Configuration boundaries
 

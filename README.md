@@ -9,6 +9,12 @@
 
 [**Watch the two-minute captioned walkthrough →**](docs/assets/ragops-two-minute-walkthrough.mp4)
 
+[Architecture](docs/architecture.md) · [Offline SciFact evidence](docs/benchmarking.md) ·
+[Serving-path baseline](https://github.com/xmike04/RAG_OPS/blob/df271a5bf9adc8c610fa8ba19f18cedea6c7ee5e/benchmarks/service/results/scifact/2026-10-26-local-40380993127/README.md) ·
+[Mixed-query load matrix](https://github.com/xmike04/RAG_OPS/blob/5549d6792a6f5f4c6126c41deb9f1e16ec5e9264/benchmarks/service/results/load/2026-10-26-local-40389341425/README.md) ·
+[Reproduction commands](benchmarks/retrieval/README.md) · [CI runs](https://github.com/xmike04/RAG_OPS/actions/workflows/ci.yml) ·
+[Security and limitations](docs/security.md)
+
 ![RAGOps read-only operator console](docs/assets/ragops-console.png)
 
 RAGOps turns text and Markdown into searchable chunks, combines lexical and
@@ -49,14 +55,13 @@ flowchart LR
   WORKER --> DB
   API --> PROVIDERS[Embedding / reranking / generation providers]
   WORKER --> PROVIDERS
-  API --> PROM[Prometheus]
-  WORKER --> PROM
-  PROM --> GRAFANA[Grafana]
+  PROM[Prometheus] -->|scrape API metrics| API
+  GRAFANA[Grafana] -->|query| PROM
 ```
 
 The API and worker share provider contracts, persistence models, and telemetry.
-PostgreSQL is the system of record; Redis carries background work and transient
-cache state. See [the architecture guide](docs/architecture.md) for request
+PostgreSQL is the system of record; Redis carries background ingestion work.
+Search-result caching is not implemented. See [the architecture guide](docs/architecture.md) for request
 flows, boundaries, and failure behavior.
 
 ## Quick start
@@ -100,12 +105,19 @@ client operation with logs and traces. The complete endpoint guide is in
 
 ## Measured evaluation
 
+### Offline algorithm experiment
+
 The real-model benchmark runs the 5,183-document BEIR SciFact corpus and 300
 held-out test queries through four retrieval strategies: canonical Okapi BM25,
 normalized `all-MiniLM-L6-v2` embeddings, RRF fusion, and a Sentence
 Transformers cross-encoder trained only on SciFact's disjoint training split.
 It records Recall@10, MRR@10, nDCG@10, and per-query p50/p95 latency alongside
 model, dataset, environment, and code hashes.
+
+This benchmark does not call FastAPI or PostgreSQL. The serving application uses
+PostgreSQL `ts_rank_cd` cover-density lexical ranking and sequential lexical/vector
+queries; it does not run the benchmark's Okapi BM25 implementation. These quality
+scores and CPU timings must not be described as API measurements.
 
 | Pipeline | Recall@10 | MRR@10 | nDCG@10 | p50 | p95 |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -116,11 +128,38 @@ model, dataset, environment, and code hashes.
 
 RRF was the strongest tested configuration. The deliberately small, train-only
 cross-encoder was a negative result: it was slower and reduced held-out quality,
-so it is retained as evidence rather than presented as an improvement. The live
-API baseline completed **9,234/9,234 requests** at concurrency 8 with **24.56 ms
+so it is retained as evidence rather than presented as an improvement.
+
+### Controlled mixed-query HTTP matrix
+
+The [October 26 matrix](https://github.com/xmike04/RAG_OPS/blob/5549d6792a6f5f4c6126c41deb9f1e16ec5e9264/benchmarks/service/results/load/2026-10-26-local-40389341425/README.md) used the same 30 seeded training queries at each
+concurrency, 30 separate warmups, and 300 measured requests per condition against
+5,183 documents / 5,887 chunks. Providers were matching local hashes; reranking
+and generation were disabled.
+
+| Concurrency | Requests / failures | p50 | p95 | p99 | Successful requests/s |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1 | 300 / 0 | 51.46 ms | 54.73 ms | 92.68 ms | 18.98 |
+| 4 | 300 / 0 | 97.61 ms | 137.22 ms | 150.81 ms | 39.34 |
+| 8 | 300 / 0 | 163.42 ms | 252.24 ms | 317.69 ms | 47.13 |
+
+Higher observed throughput came with higher latency. The report retains API/worker
+CPU ticks, RSS endpoints, index definitions, source/data hashes, and raw outcomes.
+Five first-search observations verify process/counter continuity: one after
+ingestion, then four API restarts with ready dependencies and retained DB/OS
+caches. They do not establish a cold-start percentile. This single closed-loop
+collection is not a production capacity/SLO, peak-RSS, learned-inference, or cost
+measurement.
+
+### Historical repeated-query HTTP baseline
+
+The `/v1/search` baseline completed **9,234/9,234 requests** at concurrency 8 with **24.56 ms
 p50**, **31.75 ms p95**, and **307.69 requests/second** using deterministic local
-providers. These numbers describe the recorded CPU host and workload, not a
-production SLO.
+providers. It repeated one query for 30 seconds after 10 warm-up requests. It
+does not measure generation, a varied workload, cold-start behavior, or learned
+model inference. These numbers describe the recorded CPU host and workload, not
+a production SLO. Corpus/chunk counts and process resource usage were not retained
+in this HTTP artifact.
 
 See the [benchmark protocol and retained results](docs/benchmarking.md) and the
 [HTTP load-test protocol](docs/load-testing.md). The commands below exercise the
@@ -140,9 +179,33 @@ python evals/evaluate.py \
 It reports macro Recall@k, MRR, binary nDCG, claim-level citation coverage, a
 document-overlap faithfulness proxy, and latency count/p50/p95/max. The checked-in
 run is a **deterministic evaluator fixture**, not a measured claim about the live
-application. No live-system quality baseline has been published yet. Record a
+application. A separately retained serving-path baseline is summarized below. Record a
 release baseline only from a versioned corpus, query set, configuration, and
 fresh run artifact; the protocol is in [`docs/evaluation.md`](docs/evaluation.md).
+
+
+### Actual serving-path quality baseline
+
+The [October 26 serving run](https://github.com/xmike04/RAG_OPS/blob/df271a5bf9adc8c610fa8ba19f18cedea6c7ee5e/benchmarks/service/results/scifact/2026-10-26-local-40380993127/README.md) ingested 5,183 SciFact documents into
+5,887 chunks through the application and evaluated all 300 held-out test queries.
+The configured path used matching feature-hash-384 vectors, PostgreSQL lexical
+ranking, RRF k=60, a 100-candidate cap, and no reranking or generation.
+
+| Serving quality | Held-out test result |
+| --- | ---: |
+| Recall@10 | 0.4097 |
+| Recall@100, within the returned chunk window | 0.6211 |
+| MRR@10 | 0.2881 |
+| nDCG@10 | 0.3134 |
+
+A separate serial HTTP timing table in the report records 20.70 ms p50 and
+23.76 ms p95 with no failed test requests. The 100 returned chunks represented
+90–100 unique documents. This is distinct from both the offline MiniLM/BM25
+experiment and the earlier repeated-query load test. The configurations differ
+in multiple components; the gap is not an isolated causal ablation. Raw mappings,
+qrel-recomputed scores, runtime/index metadata, and exact source/data hashes are
+retained. Process resources, generation, and production load capacity are not
+established by this quality run.
 
 ## Quality gates
 

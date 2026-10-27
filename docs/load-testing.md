@@ -4,6 +4,20 @@ This guide measures the live RAGOps stack under controlled concurrent traffic.
 It does not establish retrieval relevance, and one laptop run does not establish
 production capacity.
 
+## Retained mixed-query matrix
+
+The [October 26 controlled matrix](https://github.com/xmike04/RAG_OPS/blob/5549d6792a6f5f4c6126c41deb9f1e16ec5e9264/benchmarks/service/results/load/2026-10-26-local-40389341425/README.md) records 30 seeded training queries,
+concurrency 1/4/8 with 300 measured requests each, five validated process-first
+searches, and API/worker CPU/RSS endpoints against 5,183 documents / 5,887 chunks.
+Its reproducible orchestration is the manual-only load-evidence workflow on the
+evaluation branch; the report pins the exact application/harness source.
+
+First-search means ready dependencies and retained database/OS caches; one
+observation follows ingestion and four follow API restarts. These are not
+host/database cold starts. RSS endpoints are not peaks; closed-loop throughput
+is not production arrival-rate capacity. The earlier single-query artifact below
+remains historical evidence and is not directly comparable to this workload.
+
 ## Scope and workload identity
 
 Each report must identify the endpoint mix and provider profile. At minimum,
@@ -34,7 +48,7 @@ data, not a representative production corpus. For a release load run, record:
 Use an isolated environment. Reusing a volume after repeated seeding changes the
 corpus and invalidates a comparison unless that state is explicitly recorded.
 
-## Reproduce the baseline
+## Reproduce the historical single-query profile
 
 Start, migrate, and seed the credential-free stack, then run the standard
 30-second profile after ten warmup requests:

@@ -11,7 +11,9 @@ RAGOps uses the same retrieval path for `/v1/search` and `/v1/query`:
 5. Optionally rerank the fused shortlist.
 6. Select bounded context for generation and return stable chunk citations.
 
-Candidate generation may run concurrently. Each stage records latency and the
+Candidate generation runs sequentially: the lexical query completes before the
+vector query starts. Both use the same asynchronous database session, which must
+not be shared between concurrent tasks. Each stage records latency and the
 trace retains rank contributions so an operator can explain why a chunk won.
 
 ## Chunking and identity
@@ -30,6 +32,12 @@ change: version it, re-index documents, and evaluate before rollout.
 Lexical search is strongest for exact names, identifiers, and rare phrases.
 Vector search is strongest when the query and evidence use different wording.
 Both queries must apply the workspace predicate in the database operation.
+
+The serving lexical implementation is PostgreSQL `ts_rank_cd` cover-density
+ranking over `plainto_tsquery`, not Okapi BM25. The offline SciFact benchmark uses
+`rank_bm25.BM25Okapi`; its retrieval quality and CPU timings describe that
+standalone experiment, not `/v1/search`. A service evaluation must ingest the
+corpus through the application and score its returned chunks at document level.
 
 Raw scores are deliberately not mixed. Their scales and distributions differ by
 index, query, and provider.

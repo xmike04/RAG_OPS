@@ -11,11 +11,18 @@ Keep these labels on every result:
 | --- | --- | --- |
 | Evaluator fixture | `evals/runs/reference.jsonl` through `evals/evaluate.py` | Metric calculation, input validation, and deterministic CI behavior |
 | Real-model retrieval benchmark | A versioned corpus and queries through named embedding/reranking models | Comparative retrieval quality and in-process stage latency on the recorded machine |
+| Serving-path quality evaluation | SciFact ingested into PostgreSQL, queried through `/v1/search`, scored after chunk-to-document mapping | Quality and HTTP/stage latency of the configured application; no result is claimed until a run is retained |
 | Live API load test | Concurrent HTTP traffic through the deployed stack | End-to-end latency, throughput, and errors for that environment |
 
 Fixture scores and fixture latency are not product performance. A real-model
 result is publishable only when its raw run, configuration, environment, and
 checksums are retained together.
+
+The retained SciFact run uses `rank_bm25.BM25Okapi`. The application instead uses
+PostgreSQL `ts_rank_cd` cover-density ranking, then pgvector retrieval, sequentially
+on one asynchronous database session. An offline RRF improvement does not
+establish an improvement in the serving path. HTTP load results cover the search
+endpoint only; they exclude answer generation and do not establish retrieval quality.
 
 ## Dataset provenance
 
@@ -155,3 +162,7 @@ serialization, queueing, database contention, and concurrent tenants. Pair it
 with [`load-testing.md`](load-testing.md) before making a production capacity
 decision. The lexical faithfulness proxy remains regression evidence, not proof
 that generated claims are entailed.
+
+## Retained serving-path result
+
+The [full serving baseline](https://github.com/xmike04/RAG_OPS/blob/df271a5bf9adc8c610fa8ba19f18cedea6c7ee5e/benchmarks/service/results/scifact/2026-10-26-local-40380993127/README.md) evaluates 5,183 ingested documents / 5,887 chunks and 300 held-out queries through the actual HTTP application. Its matching local-provider configuration achieved 0.4097 Recall@10 and 0.3134 nDCG@10. This is separate from the offline Okapi BM25/MiniLM experiment; the report retains raw outputs, exact boundaries, limitations, and independent qrel/checksum verification. No parameter tuning followed test observation.
