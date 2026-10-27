@@ -1,0 +1,128 @@
+name: Collect frozen SciFact serving evidence
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: ragops
+          POSTGRES_USER: ragops
+          POSTGRES_PASSWORD: ragops
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U ragops -d ragops"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      RAGOPS_ENVIRONMENT: test
+      RAGOPS_DATABASE_URL: postgresql+asyncpg://ragops:ragops@localhost:5432/ragops
+      RAGOPS_REDIS_URL: redis://localhost:6379/0
+      RAGOPS_EMBEDDING_PROVIDER: local
+      RAGOPS_RERANKER_PROVIDER: local
+      RAGOPS_GENERATION_PROVIDER: local
+      RAGOPS_RETRIEVAL_CANDIDATE_LIMIT: '100'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 6a07b41aadbb326eee7c9031a15923246103c2f7
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.9.18'
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - run: make backend-install
+      - name: Ingest and evaluate the frozen train and final test splits
+        run: |
+          set -euo pipefail
+          cd backend
+          .venv/bin/alembic upgrade head
+          .venv/bin/uvicorn ragops.main:app --host 127.0.0.1 --port 8000 > "$RUNNER_TEMP/scifact-api.log" 2>&1 &
+          api_pid=$!
+          .venv/bin/python -m ragops.worker.main > "$RUNNER_TEMP/scifact-worker.log" 2>&1 &
+          worker_pid=$!
+          trap 'kill "$api_pid" "$worker_pid" 2>/dev/null || true' EXIT
+          cd ..
+          python3 - <<'PY'
+          import time
+          from benchmarks.service.run import HTTPClient
+          client = HTTPClient("http://127.0.0.1:8000", timeout=3)
+          deadline = time.monotonic() + 45
+          while True:
+              try:
+                  client.request("GET", "/ready")
+                  break
+              except (OSError, RuntimeError):
+                  if time.monotonic() >= deadline:
+                      raise
+                  time.sleep(.25)
+          PY
+          python3 -m benchmarks.service.run ingest --output-dir benchmarks/service/results/ci-run
+          benchmark_workspace=$(python3 -c 'import json; print(json.load(open("benchmarks/service/results/ci-run/ingest.json"))["workspace_id"])')
+          benchmark_source=$(git rev-parse HEAD)
+          backend/.venv/bin/python -m benchmarks.service.capture --workspace-id "$benchmark_workspace" --source-revision "$benchmark_source" > benchmarks/service/results/ci-run/runtime.json
+          python3 -m benchmarks.service.run evaluate --output-dir benchmarks/service/results/ci-run --runtime benchmarks/service/results/ci-run/runtime.json
+          python3 -m benchmarks.service.run evaluate --output-dir benchmarks/service/results/ci-run --runtime benchmarks/service/results/ci-run/runtime.json --split test --final-test
+      - name: Package exact raw evidence and environment
+        if: always()
+        run: |
+          backend/.venv/bin/python - <<'PY'
+          import gzip, hashlib, importlib.metadata, json, os, platform, subprocess
+          from pathlib import Path
+          root = Path("benchmarks/service/results/ci-run")
+          target = Path("retained-evidence")
+          target.mkdir(exist_ok=False)
+          manifest = {}
+          if root.exists():
+              for path in sorted(root.rglob("*")):
+                  if path.is_file():
+                      relative = path.relative_to(root)
+                      output = target / str(relative)
+                      output = output.with_name(output.name + ".gz")
+                      output.parent.mkdir(parents=True, exist_ok=True)
+                      raw = path.read_bytes()
+                      output.write_bytes(gzip.compress(raw, mtime=0))
+                      manifest[str(relative)] = hashlib.sha256(raw).hexdigest()
+          def optional(path):
+              item = Path(path)
+              return item.read_text().strip() if item.exists() else None
+          environment = {
+              "source_revision": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+              "tracked_source_dirty": bool(subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=no"], text=True).strip()),
+              "platform": platform.platform(), "python": platform.python_version(),
+              "logical_cpu_count_visible": os.cpu_count(),
+              "memory_info": optional("/proc/meminfo"),
+              "cgroup_cpu_max": optional("/sys/fs/cgroup/cpu.max"),
+              "cgroup_memory_max": optional("/sys/fs/cgroup/memory.max"),
+              "backend_lock_sha256": hashlib.sha256(Path("backend/uv.lock").read_bytes()).hexdigest(),
+              "packages": {d.metadata["Name"]: d.version for d in importlib.metadata.distributions() if d.metadata["Name"]},
+              "files_uncompressed_sha256": manifest,
+              "evidence_class": "HTTP serving-path quality with local deterministic providers; generation, load capacity, billing, and process resource samples not measured",
+          }
+          (target / "environment.json").write_text(json.dumps(environment, indent=2, sort_keys=True) + "\n")
+          (target / "README.md").write_text("# Frozen SciFact HTTP serving evidence\n\nMeasured source is identified in environment.json. Each .gz file contains the exact original harness output; the manifest hashes the uncompressed bytes. Input data and attribution retain the SciFact licenses in benchmarks/datasets/scifact/LICENSES.md. Train and held-out results are separate; no parameter tuning followed test observation. These are deterministic-provider serving measurements, not the offline BM25/MiniLM experiment or production SLOs.\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frozen-scifact-serving-evidence
+          path: retained-evidence/
+          retention-days: 30
+

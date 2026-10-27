@@ -63,6 +63,24 @@ jobs:
         run: make backend-test
       - name: Test cross-component contracts
         run: make cross-test
+      - name: Exercise real HTTP ingestion and retrieval fixture
+        run: |
+          cd backend
+          .venv/bin/alembic upgrade head
+          .venv/bin/uvicorn ragops.main:app --host 127.0.0.1 --port 8010 > "$RUNNER_TEMP/service-api.log" 2>&1 &
+          api_pid=$!
+          .venv/bin/python -m ragops.worker.main > "$RUNNER_TEMP/service-worker.log" 2>&1 &
+          worker_pid=$!
+          trap 'kill "$api_pid" "$worker_pid" 2>/dev/null || true' EXIT
+          cd ..
+          python3 -m benchmarks.service.smoke
+      - name: Retain service fixture diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: service-fixture-logs
+          path: ${{ runner.temp }}/service-*.log
+          retention-days: 7
 
   frontend:
     name: Frontend quality

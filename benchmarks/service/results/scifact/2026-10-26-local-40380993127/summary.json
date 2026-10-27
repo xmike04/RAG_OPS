@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "evidence_class": "HTTP /v1/search, deterministic local-provider serving path",
+  "collection_run": "https://github.com/xmike04/RAG_OPS/actions/runs/40380993127",
+  "independent_artifact_validation_run": "https://github.com/xmike04/RAG_OPS/actions/runs/40382526181",
+  "measured_source": "6a07b41aadbb326eee7c9031a15923246103c2f7",
+  "corpus": {
+    "chunks": 5887,
+    "documents": 5183,
+    "indexed_documents": 5183,
+    "workspace_id": "91122cdc-963d-43d2-a6e2-c58678405efe"
+  },
+  "configuration": {
+    "embedding": {
+      "dimensions": 384,
+      "model": "feature-hash-384",
+      "provider": "local"
+    },
+    "chunking": {
+      "max_tokens": 384,
+      "overlap_tokens": 64,
+      "tokenizer": "RegexTokenizer"
+    },
+    "request_top_k_chunks": 100,
+    "candidate_limit_per_source": 100,
+    "rrf_k": 60,
+    "rerank": false,
+    "concurrency": 1
+  },
+  "environment": {
+    "python": "3.12.15",
+    "logical_cpu_count_visible": 4,
+    "postgres": "PostgreSQL 16.15 (Debian 16.15-1.pgdg12+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit",
+    "pgvector": "0.8.7",
+    "global_chunks_table_and_indexes_bytes": 48128000
+  },
+  "train": {
+    "query_count": 809,
+    "successful_queries": 809,
+    "failed_queries": 0,
+    "errors": {},
+    "complete_without_errors": true,
+    "quality_all_queries": {
+      "recall@10": 0.44276885043263287,
+      "recall@100": 0.6375978574371652,
+      "mrr@10": 0.32539780642376437,
+      "ndcg@10": 0.34856940961891764
+    },
+    "http_latency_ms_successful": {
+      "count": 809,
+      "p50": 21.900969000000714,
+      "p95": 25.008987200004636,
+      "p99": 37.10945504000259,
+      "min": 20.212557999997216,
+      "max": 58.65159500000061
+    },
+    "stage_latency_ms_successful": {
+      "embedding": {
+        "count": 809,
+        "p50": 0.046,
+        "p95": 0.059,
+        "p99": 0.064,
+        "min": 0.035,
+        "max": 0.141
+      },
+      "fusion": {
+        "count": 809,
+        "p50": 0.375,
+        "p95": 0.461,
+        "p99": 0.5118799999999994,
+        "min": 0.351,
+        "max": 33.792
+      },
+      "lexical_retrieval": {
+        "count": 809,
+        "p50": 1.765,
+        "p95": 2.3997999999999995,
+        "p99": 2.8199599999999996,
+        "min": 0.784,
+        "max": 4.107
+      },
+      "reranking": {
+        "count": 809,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "min": 0,
+        "max": 0
+      },
+      "total": {
+        "count": 809,
+        "p50": 19.093,
+        "p95": 21.4774,
+        "p99": 27.44459999999999,
+        "min": 17.527,
+        "max": 52.813
+      },
+      "vector_retrieval": {
+        "count": 809,
+        "p50": 16.843,
+        "p95": 19.0056,
+        "p99": 24.605719999999966,
+        "min": 16.139,
+        "max": 49.186
+      }
+    },
+    "providers": {
+      "embedding_model": "feature-hash-384",
+      "embedding_provider": "local"
+    },
+    "unique_document_window": {
+      "count": 809,
+      "p50": 98,
+      "p95": 100,
+      "p99": 100,
+      "min": 88,
+      "max": 100
+    }
+  },
+  "test": {
+    "query_count": 300,
+    "successful_queries": 300,
+    "failed_queries": 0,
+    "errors": {},
+    "complete_without_errors": true,
+    "quality_all_queries": {
+      "recall@10": 0.40972222222222227,
+      "recall@100": 0.6211111111111112,
+      "mrr@10": 0.2880965608465608,
+      "ndcg@10": 0.313407829956814
+    },
+    "http_latency_ms_successful": {
+      "count": 300,
+      "p50": 20.703058999998802,
+      "p95": 23.76114104999943,
+      "p99": 41.396259640011294,
+      "min": 20.03533399999924,
+      "max": 57.25504700001238
+    },
+    "stage_latency_ms_successful": {
+      "embedding": {
+        "count": 300,
+        "p50": 0.046,
+        "p95": 0.058,
+        "p99": 0.064,
+        "min": 0.036,
+        "max": 0.08
+      },
+      "fusion": {
+        "count": 300,
+        "p50": 0.366,
+        "p95": 0.45005,
+        "p99": 0.49728999999999973,
+        "min": 0.329,
+        "max": 32.903
+      },
+      "lexical_retrieval": {
+        "count": 300,
+        "p50": 0.902,
+        "p95": 1.011,
+        "p99": 1.4059299999999975,
+        "min": 0.768,
+        "max": 3.967
+      },
+      "reranking": {
+        "count": 300,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "min": 0,
+        "max": 0
+      },
+      "total": {
+        "count": 300,
+        "p50": 17.930999999999997,
+        "p95": 20.65745,
+        "p99": 27.546169999999915,
+        "min": 17.401,
+        "max": 51.099
+      },
+      "vector_retrieval": {
+        "count": 300,
+        "p50": 16.597,
+        "p95": 19.051750000000002,
+        "p99": 24.98577999999999,
+        "min": 16.077,
+        "max": 49.786
+      }
+    },
+    "providers": {
+      "embedding_model": "feature-hash-384",
+      "embedding_provider": "local"
+    },
+    "unique_document_window": {
+      "count": 300,
+      "p50": 98,
+      "p95": 100,
+      "p99": 100,
+      "min": 90,
+      "max": 100
+    }
+  },
+  "not_measured": [
+    "generation and answer quality",
+    "mixed-query concurrency/cold-state load matrix",
+    "process CPU/RSS samples",
+    "provider billing/cost",
+    "effective query plans and runtime database override parameters"
+  ],
+  "interpretation": "The offline BM25/MiniLM and serving configurations differ in lexical scoring, embeddings, chunking, and candidate window. These results do not isolate a causal contribution or establish a production SLA."
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "dataset": "BEIR SciFact, canonical checked-in v1 snapshot",
+  "dataset_manifest_sha256": "da5c92526074416621759277396217d8d3946ea0f8b904b15cc3aaa9b0d5f8bb",
+  "request_top_k": 100,
+  "rerank": false,
+  "seed": 0,
+  "settings": {
+    "embedding_provider": "local",
+    "embedding_dimensions": 384,
+    "retrieval_candidate_limit": 100,
+    "retrieval_rrf_k": 60
+  },
+  "document_ranking": "First occurrence of each original SciFact document in the returned ranked chunks",
+  "preprocessing": "Title, two newlines, abstract; application normalization and regex-token chunking",
+  "test_policy": "Freeze this file before --final-test; use train queries for development; report every final run"
+}
