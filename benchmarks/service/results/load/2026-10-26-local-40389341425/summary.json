@@ -1,0 +1,2808 @@
+{
+  "chunking": {
+    "max_tokens": 384,
+    "overlap_tokens": 64,
+    "tokenizer": "RegexTokenizer"
+  },
+  "collection_run_id": "40389341425",
+  "conditions": [
+    {
+      "harness_git_revision": "fa5b6fae567d3863eb26af68bd908fc4c8c8f383",
+      "harness_source_sha256": "1bcd79312744e6ea0045f2d252309d9fd2cf049cacb0b80f05cb8980f2fd6183",
+      "measurement_utc": "2026-10-26T19:46:08.504792+00:00",
+      "observation_status": "valid",
+      "phase": "first-search-after-api-restart",
+      "process_resources": {
+        "api": {
+          "cpu_seconds": 0.03,
+          "mean_cpu_percent_one_core": 35.09636039161283,
+          "process_start_ticks": 5425,
+          "rss_end_bytes": 98525184,
+          "rss_start_bytes": 98263040,
+          "sampling": "CPU tick delta over the request window; two RSS endpoints, not peak RSS"
+        },
+        "worker": {
+          "cpu_seconds": 0.0,
+          "mean_cpu_percent_one_core": 0.0,
+          "process_start_ticks": 5425,
+          "rss_end_bytes": 93347840,
+          "rss_start_bytes": 93347840,
+          "sampling": "CPU tick delta over the request window; two RSS endpoints, not peak RSS"
+        }
+      },
+      "process_snapshots": {
+        "after": {
+          "api": {
+            "cpu_ticks": 5097,
+            "pid": 3109,
+            "rss_bytes": 98525184,
+            "started_ticks": 5425
+          },
+          "worker": {
+            "cpu_ticks": 6090,
+            "pid": 3108,
+            "rss_bytes": 93347840,
+            "started_ticks": 5425
+          }
+        },
+        "before": {
+          "api": {
+            "cpu_ticks": 5094,
+            "pid": 3109,
+            "rss_bytes": 98263040,
+            "started_ticks": 5425
+          },
+          "worker": {
+            "cpu_ticks": 6090,
+            "pid": 3108,
+            "rss_bytes": 93347840,
+            "started_ticks": 5425
+          }
+        },
+        "clock_ticks_per_second": 100
+      },
+      "query_ids": [
+        "355",
+        "949",
+        "400",
+        "1053",
+        "157",
+        "565",
+        "505",
+        "379",
+        "990",
+        "223",
+        "490",
+        "313",
+        "667",
+        "1361",
+        "553",
+        "122",
+        "187",
+        "1220",
+        "944",
+        "1148",
+        "73",
+        "1407",
+        "60",
+        "866",
+        "688",
+        "1230",
+        "235",
+        "1158",
+        "902",
+        "1111"
+      ],
+      "restart_observation": {
+        "initial_process": {
+          "cpu_ticks": 5094,
+          "pid": 3109,
+          "rss_bytes": 98263040,
+          "started_ticks": 5425
+        },
+        "search_counter_after": 1,
+        "search_counter_before": 0
+      },
+      "seed": 0,
+      "summary": {
+        "attempted": 1,
+        "completed_requests_per_second": 11.698786797204278,
+        "concurrency": 1,
+        "elapsed_seconds": 0.08547894899999164,
+        "errors": {},
+        "failed": 0,
+        "latency_ms_successful": {
+          "count": 1,
+          "max": 84.75130900001204,
+          "min": 84.75130900001204,
+          "p50": 84.75130900001204,
+          "p95": 84.75130900001204,
+          "p99": 84.75130900001204
+        },
+        "stage_latency_ms_successful": {
+          "embedding": {
+            "count": 1,
+            "max": 0.221,
+            "min": 0.221,
+            "p50": 0.221,
+            "p95": 0.221,
+            "p99": 0.221
+          },
+          "fusion": {
+            "count": 1,
+            "max": 0.718,
+            "min": 0.718,
+            "p50": 0.718,
+            "p95": 0.718,
+            "p99": 0.718
+          },
+          "lexical_retrieval": {
+            "count": 1,
+            "max": 19.475,
+            "min": 19.475,
+            "p50": 19.475,
+            "p95": 19.475,
+            "p99": 19.475
+          },
+          "reranking": {
+            "count": 1,
+            "max": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0
+          },
+          "total": {
+            "count": 1,
+            "max": 59.866,
+            "min": 59.866,
+            "p50": 59.866,
+            "p95": 59.866,
+            "p99": 59.866
+          },
+          "vector_retrieval": {
+            "count": 1,
+            "max": 39.429,
+            "min": 39.429,
+            "p50": 39.429,
+            "p95": 39.429,
+            "p99": 39.429
+          }
+        },
+        "successful": 1,
+        "successful_requests_per_second": 11.698786797204278
+      },
+      "warmup": {
+        "attempted": 0,
+        "errors": {},
+        "failed": 0,
+        "records": []
+      }
+    },
+    {
+      "harness_git_revision": "fa5b6fae567d3863eb26af68bd908fc4c8c8f383",
+      "harness_source_sha256": "1bcd79312744e6ea0045f2d252309d9fd2cf049cacb0b80f05cb8980f2fd6183",
+      "measurement_utc": "2026-10-26T19:46:45.064261+00:00",
+      "observation_status": "valid",
+      "phase": "first-search-after-api-restart",
+      "process_resources": {
+        "api": {
+          "cpu_seconds": 0.08,
+          "mean_cpu_percent_one_core": 64.27325543162621,
+          "process_start_ticks": 19591,
+          "rss_end_bytes": 92033024,
+          "rss_start_bytes": 89935872,
+          "sampling": "CPU tick delta over the request window; two RSS endpoints, not peak RSS"
+        },
+        "worker": {
+          "cpu_seconds": 0.0,
+          "mean_cpu_percent_one_core": 0.0,
+          "process_start_ticks": 5425,
+          "rss_end_bytes": 93347840,
+          "rss_start_bytes": 93347840,
+          "sampling": "CPU tick delta over the request window; two RSS endpoints, not peak RSS"
+        }
+      },
+      "process_snapshots": {
+        "after": {
+          "api": {
+            "cpu_ticks": 96,
+            "pid": 4359,
+            "rss_bytes": 92033024,
+            "started_ticks": 19591
+          },
+          "worker": {
+            "cpu_ticks": 6091,
+            "pid": 3108,
+            "rss_bytes": 93347840,
+            "started_ticks": 5425
+          }
+        },
+        "before": {
+          "api": {
+            "cpu_ticks": 88,
+            "pid": 4359,
+            "rss_bytes": 89935872,
+            "started_ticks": 19591
+          },
+          "worker": {
+            "cpu_ticks": 6091,
+            "pid": 3108,
+            "rss_bytes": 93347840,
+            "started_ticks": 5425
+          }
+        },
+        "clock_ticks_per_second": 100
+      },
+      "query_ids": [
+        "1212",
+        "648",
+        "955",
+        "1096",
+        "153",
+        "1183",
+        "531",
+        "952",
+        "449",
+        "485",
+        "776",
+        "346",
+        "998",
+        "1347",
+        "1145",
+        "509",
+        "104",
+        "363",
+        "422",
+        "703",
+        "953",
+        "962",
+        "1000",
+        "853",
+        "444",
+        "167",
+        "895",
+        "138",
+        "676",
+        "1161"
+      ],
+      "restart_observation": {
+        "initial_process": {
+          "cpu_ticks": 87,
+          "pid": 4359,
+          "rss_bytes": 89935872,
+          "started_ticks": 19591
+        },
+        "search_counter_after": 1,
+        "search_counter_before": 0
+      },
+      "seed": 1,
+      "summary": {
+        "attempted": 1,
+        "completed_requests_per_second": 8.034156928953276,
+        "concurrency": 1,
+        "elapsed_seconds": 0.12446856700000808,
+        "errors": {},
+        "failed": 0,
+        "latency_ms_successful": {
+          "count": 1,
+          "max": 123.65228100000536,
+          "min": 123.65228100000536,
+          "p50": 123.65228100000536,
+          "p95": 123.65228100000536,
+          "p99": 123.65228100000536
+        },
+        "stage_latency_ms_successful": {
+          "embedding": {
+            "count": 1,
+            "max": 0.215,
+            "min": 0.215,
+            "p50": 0.215,
+            "p95": 0.215,
+            "p99": 0.215
+          },
+          "fusion": {
+            "count": 1,
+            "max": 0.75,
+            "min": 0.75,
+            "p50": 0.75,
+            "p95": 0.75,
+            "p99": 0.75
+          },
+          "lexical_retrieval": {
+            "count": 1,
+            "max": 5.794,
+            "min": 5.794,
+            "p50": 5.794,
+            "p95": 5.794,
+            "p99": 5.794
+          },
+          "reranking": {
+            "count": 1,
+            "max": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0
+          },
+          "total": {
+            "count": 1,
+            "max": 51.781,
+            "min": 51.781,
+            "p50": 51.781,
+            "p95": 51.781,
+            "p99": 51.781
+          },
+          "vector_retrieval": {
+            "count": 1,
+            "max": 44.991,
+            "min": 44.991,
+            "p50": 44.991,
+            "p95": 44.991,
+            "p99": 44.991
+          }
+        },
+        "successful": 1,
+        "successful_requests_per_second": 8.034156928953276
+      },
+      "warmup": {
+        "attempted": 0,
+        "errors": {},
+        "failed": 0,
+        "records": []
+      }
+    },
+    {
+      "harness_git_revision": "fa5b6fae567d3863eb26af68bd908fc4c8c8f383",
+      "harness_source_sha256": "1bcd79312744e6ea0045f2d252309d9fd2cf049cacb0b80f05cb8980f2fd6183",
+      "measurement_utc": "2026-10-26T19:46:46.640128+00:00",
+      "observation_status": "valid",
+      "phase": "first-search-after-api-restart",
+      "process_resources": {
+        "api": {
+          "cpu_seconds": 0.08,
+          "mean_cpu_percent_one_core": 63.56953760471704,
+          "process_start_ticks": 19749,
+          "rss_end_bytes": 91996160,
+          "rss_start_bytes": 90030080,
+          "sampling": "CPU tick delta over the request window; two RSS endpoints, not peak RSS"
+        },
+        "worker": {
+          "cpu_seconds": 0.0,
+          "mean_cpu_percent_one_core": 0.0,
+          "process_start_ticks": 5425,
+          "rss_end_bytes": 93347840,
+          "rss_start_bytes": 93347840,
+          "sampling": "CPU tick delta over the request window; two RSS endpoints, not peak RSS"
+        }
+      },
+      "process_snapshots": {
+        "after": {
+          "api": {
+            "cpu_ticks": 95,
+            "pid": 4370,
+            "rss_bytes": 91996160,
+            "started_ticks": 19749
+          },
+          "worker": {
+            "cpu_ticks": 6091,
+            "pid": 3108,
+            "rss_bytes": 93347840,
+            "started_ticks": 5425
+          }
+        },
+        "before": {
+          "api": {
+            "cpu_ticks": 87,
+            "pid": 4370,
+            "rss_bytes": 90030080,
+            "started_ticks": 19749
+          },
+          "worker": {
+            "cpu_ticks": 6091,
+            "pid": 3108,
+            "rss_bytes": 93347840,
+            "started_ticks": 5425
+          }
+        },
+        "clock_ticks_per_second": 100
+      },
+      "query_ids": [
+        "1081",
+        "114",
+        "1128",
+        "317",
+        "1268",
+        "916",
+        "80",
+        "228",
+        "144",
+        "696",
+        "1350",
+        "698",
+        "1047",
+        "665",
+        "817",
+        "1249",
+        "418",
+        "757",
+        "366",
+        "897",
+        "563",
+        "336",
+        "614",
+        "441",
+        "55",
+        "169",
+        "1038",
+        "325",
+        "474",
+        "25"
+      ],
+      "restart_observation": {
+        "initial_process": {
+          "cpu_ticks": 87,
+          "pid": 4370,
+          "rss_bytes": 89899008,
+          "started_ticks": 19749
+        },
+        "search_counter_after": 1,
+        "search_counter_before": 0
+      },
+      "seed": 2,
+      "summary": {
+        "attempted": 1,
+        "completed_requests_per_second": 7.94619220058963,
+        "concurrency": 1,
+        "elapsed_seconds": 0.12584644000000367,
+        "errors": {},
+        "failed": 0,
+        "latency_ms_successful": {
+          "count": 1,
+          "max": 125.10135299999092,
+          "min": 125.10135299999092,
+          "p50": 125.10135299999092,
+          "p95": 125.10135299999092,
+          "p99": 125.10135299999092
+        },
+        "stage_latency_ms_successful": {
+          "embedding": {
+            "count": 1,
+            "max": 0.243,
+            "min": 0.243,
+            "p50": 0.243,
+            "p95": 0.243,
+            "p99": 0.243
+          },
+          "fusion": {
+            "count": 1,
+            "max": 0.725,
+            "min": 0.725,
+            "p50": 0.725,
+            "p95": 0.725,
+            "p99": 0.725
+          },
+          "lexical_retrieval": {
+            "count": 1,
+            "max": 5.248,
+            "min": 5.248,
+            "p50": 5.248,
+            "p95": 5.248,
+            "p99": 5.248
+          },
+          "reranking": {
+            "count": 1,
+            "max": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0
+          },
+          "total": {
+            "count": 1,
+            "max": 49.291,
+            "min": 49.291,
+            "p50": 49.291,
+            "p95": 49.291,
+            "p99": 49.291
+          },
+          "vector_retrieval": {
+            "count": 1,
+            "max": 43.049,
+            "min": 43.049,
+            "p50": 43.049,
+            "p95": 43.049,
+            "p99": 43.049
+          }
+        },
+        "successful": 1,
+        "successful_requests_per_second": 7.94619220058963
+      },
+      "warmup": {
+        "attempted": 0,
+        "errors": {},
+        "failed": 0,
+        "records": []
+      }
+    },
+    {
+      "harness_git_revision": "fa5b6fae567d3863eb26af68bd908fc4c8c8f383",
+      "harness_source_sha256": "1bcd79312744e6ea0045f2d252309d9fd2cf049cacb0b80f05cb8980f2fd6183",
+      "measurement_utc": "2026-10-26T19:46:47.948862+00:00",
+      "observation_status": "valid",
+      "phase": "first-search-after-api-restart",
+      "process_resources": {
+        "api": {
+          "cpu_seconds": 0.08,
+          "mean_cpu_percent_one_core": 66.12418058295641,
+          "process_start_ticks": 19907,
+          "rss_end_bytes": 92200960,
+          "rss_start_bytes": 90210304,
+          "sampling": "CPU tick delta over the request window; two RSS endpoints, not peak RSS"
+        },
+        "worker": {
+          "cpu_seconds": 0.0,
+          "mean_cpu_percent_one_core": 0.0,
+          "process_start_ticks": 5425,
+          "rss_end_bytes": 93347840,
+          "rss_start_bytes": 93347840,
+          "sampling": "CPU tick delta over the request window; two RSS endpoints, not peak RSS"
+        }
+      },
+      "process_snapshots": {
+        "after": {
+          "api": {
+            "cpu_ticks": 91,
+            "pid": 4425,
+            "rss_bytes": 92200960,
+            "started_ticks": 19907
+          },
+          "worker": {
+            "cpu_ticks": 6091,
+            "pid": 3108,
+            "rss_bytes": 93347840,
+            "started_ticks": 5425
+          }
+        },
+        "before": {
+          "api": {
+            "cpu_ticks": 83,
+            "pid": 4425,
+            "rss_bytes": 90210304,
+            "started_ticks": 19907
+          },
+          "worker": {
+            "cpu_ticks": 6091,
+            "pid": 3108,
+            "rss_bytes": 93347840,
+            "started_ticks": 5425
+          }
+        },
+        "clock_ticks_per_second": 100
+      },
+      "query_ids": [
+        "1392",
+        "677",
+        "614",
+        "1209",
+        "334",
+        "69",
+        "487",
+        "738",
+        "663",
+        "11",
+        "696",
+        "1016",
+        "482",
+        "157",
+        "621",
+        "1387",
+        "1314",
+        "890",
+        "483",
+        "61",
+        "62",
+        "489",
+        "37",
+        "758",
+        "1236",
+        "1383",
+        "752",
+        "1237",
+        "582",
+        "363"
+      ],
+      "restart_observation": {
+        "initial_process": {
+          "cpu_ticks": 83,
+          "pid": 4425,
+          "rss_bytes": 90079232,
+          "started_ticks": 19907
+        },
+        "search_counter_after": 1,
+        "search_counter_before": 0
+      },
+      "seed": 3,
+      "summary": {
+        "attempted": 1,
+        "completed_requests_per_second": 8.265522572869552,
+        "concurrency": 1,
+        "elapsed_seconds": 0.12098448599999756,
+        "errors": {},
+        "failed": 0,
+        "latency_ms_successful": {
+          "count": 1,
+          "max": 120.22310300000072,
+          "min": 120.22310300000072,
+          "p50": 120.22310300000072,
+          "p95": 120.22310300000072,
+          "p99": 120.22310300000072
+        },
+        "stage_latency_ms_successful": {
+          "embedding": {
+            "count": 1,
+            "max": 0.225,
+            "min": 0.225,
+            "p50": 0.225,
+            "p95": 0.225,
+            "p99": 0.225
+          },
+          "fusion": {
+            "count": 1,
+            "max": 0.729,
+            "min": 0.729,
+            "p50": 0.729,
+            "p95": 0.729,
+            "p99": 0.729
+          },
+          "lexical_retrieval": {
+            "count": 1,
+            "max": 5.658,
+            "min": 5.658,
+            "p50": 5.658,
+            "p95": 5.658,
+            "p99": 5.658
+          },
+          "reranking": {
+            "count": 1,
+            "max": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0
+          },
+          "total": {
+            "count": 1,
+            "max": 48.878,
+            "min": 48.878,
+            "p50": 48.878,
+            "p95": 48.878,
+            "p99": 48.878
+          },
+          "vector_retrieval": {
+            "count": 1,
+            "max": 42.241,
+            "min": 42.241,
+            "p50": 42.241,
+            "p95": 42.241,
+            "p99": 42.241
+          }
+        },
+        "successful": 1,
+        "successful_requests_per_second": 8.265522572869552
+      },
+      "warmup": {
+        "attempted": 0,
+        "errors": {},
+        "failed": 0,
+        "records": []
+      }
+    },
+    {
+      "harness_git_revision": "fa5b6fae567d3863eb26af68bd908fc4c8c8f383",
+      "harness_source_sha256": "1bcd79312744e6ea0045f2d252309d9fd2cf049cacb0b80f05cb8980f2fd6183",
+      "measurement_utc": "2026-10-26T19:46:49.221111+00:00",
+      "observation_status": "valid",
+      "phase": "first-search-after-api-restart",
+      "process_resources": {
+        "api": {
+          "cpu_seconds": 0.08,
+          "mean_cpu_percent_one_core": 65.10623779527894,
+          "process_start_ticks": 20034,
+          "rss_end_bytes": 91918336,
+          "rss_start_bytes": 89952256,
+          "sampling": "CPU tick delta over the request window; two RSS endpoints, not peak RSS"
+        },
+        "worker": {
+          "cpu_seconds": 0.0,
+          "mean_cpu_percent_one_core": 0.0,
+          "process_start_ticks": 5425,
+          "rss_end_bytes": 93347840,
+          "rss_start_bytes": 93347840,
+          "sampling": "CPU tick delta over the request window; two RSS endpoints, not peak RSS"
+        }
+      },
+      "process_snapshots": {
+        "after": {
+          "api": {
+            "cpu_ticks": 92,
+            "pid": 4436,
+            "rss_bytes": 91918336,
+            "started_ticks": 20034
+          },
+          "worker": {
+            "cpu_ticks": 6091,
+            "pid": 3108,
+            "rss_bytes": 93347840,
+            "started_ticks": 5425
+          }
+        },
+        "before": {
+          "api": {
+            "cpu_ticks": 84,
+            "pid": 4436,
+            "rss_bytes": 89952256,
+            "started_ticks": 20034
+          },
+          "worker": {
+            "cpu_ticks": 6091,
+            "pid": 3108,
+            "rss_bytes": 93347840,
+            "started_ticks": 5425
+          }
+        },
+        "clock_ticks_per_second": 100
+      },
+      "query_ids": [
+        "1390",
+        "223",
+        "1162",
+        "895",
+        "369",
+        "493",
+        "1244",
+        "1139",
+        "1101",
+        "1030",
+        "376",
+        "62",
+        "200",
+        "959",
+        "1087",
+        "1371",
+        "579",
+        "603",
+        "316",
+        "18",
+        "980",
+        "1276",
+        "1166",
+        "161",
+        "1353",
+        "1036",
+        "760",
+        "159",
+        "174",
+        "1322"
+      ],
+      "restart_observation": {
+        "initial_process": {
+          "cpu_ticks": 84,
+          "pid": 4436,
+          "rss_bytes": 89821184,
+          "started_ticks": 20034
+        },
+        "search_counter_after": 1,
+        "search_counter_before": 0
+      },
+      "seed": 4,
+      "summary": {
+        "attempted": 1,
+        "completed_requests_per_second": 8.138279724409868,
+        "concurrency": 1,
+        "elapsed_seconds": 0.12287609099999486,
+        "errors": {},
+        "failed": 0,
+        "latency_ms_successful": {
+          "count": 1,
+          "max": 122.13540799999123,
+          "min": 122.13540799999123,
+          "p50": 122.13540799999123,
+          "p95": 122.13540799999123,
+          "p99": 122.13540799999123
+        },
+        "stage_latency_ms_successful": {
+          "embedding": {
+            "count": 1,
+            "max": 0.237,
+            "min": 0.237,
+            "p50": 0.237,
+            "p95": 0.237,
+            "p99": 0.237
+          },
+          "fusion": {
+            "count": 1,
+            "max": 0.762,
+            "min": 0.762,
+            "p50": 0.762,
+            "p95": 0.762,
+            "p99": 0.762
+          },
+          "lexical_retrieval": {
+            "count": 1,
+            "max": 5.858,
+            "min": 5.858,
+            "p50": 5.858,
+            "p95": 5.858,
+            "p99": 5.858
+          },
+          "reranking": {
+            "count": 1,
+            "max": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0
+          },
+          "total": {
+            "count": 1,
+            "max": 49.013,
+            "min": 49.013,
+            "p50": 49.013,
+            "p95": 49.013,
+            "p99": 49.013
+          },
+          "vector_retrieval": {
+            "count": 1,
+            "max": 42.128,
+            "min": 42.128,
+            "p50": 42.128,
+            "p95": 42.128,
+            "p99": 42.128
+          }
+        },
+        "successful": 1,
+        "successful_requests_per_second": 8.138279724409868
+      },
+      "warmup": {
+        "attempted": 0,
+        "errors": {},
+        "failed": 0,
+        "records": []
+      }
+    },
+    {
+      "harness_git_revision": "fa5b6fae567d3863eb26af68bd908fc4c8c8f383",
+      "harness_source_sha256": "1bcd79312744e6ea0045f2d252309d9fd2cf049cacb0b80f05cb8980f2fd6183",
+      "measurement_utc": "2026-10-26T19:46:08.730870+00:00",
+      "observation_status": "valid",
+      "phase": "warm",
+      "process_resources": {
+        "api": {
+          "cpu_seconds": 2.77,
+          "mean_cpu_percent_one_core": 17.52769515660823,
+          "process_start_ticks": 5425,
+          "rss_end_bytes": 98713600,
+          "rss_start_bytes": 98713600,
+          "sampling": "CPU tick delta over the request window; two RSS endpoints, not peak RSS"
+        },
+        "worker": {
+          "cpu_seconds": 0.0,
+          "mean_cpu_percent_one_core": 0.0,
+          "process_start_ticks": 5425,
+          "rss_end_bytes": 93347840,
+          "rss_start_bytes": 93347840,
+          "sampling": "CPU tick delta over the request window; two RSS endpoints, not peak RSS"
+        }
+      },
+      "process_snapshots": {
+        "after": {
+          "api": {
+            "cpu_ticks": 5401,
+            "pid": 3109,
+            "rss_bytes": 98713600,
+            "started_ticks": 5425
+          },
+          "worker": {
+            "cpu_ticks": 6090,
+            "pid": 3108,
+            "rss_bytes": 93347840,
+            "started_ticks": 5425
+          }
+        },
+        "before": {
+          "api": {
+            "cpu_ticks": 5124,
+            "pid": 3109,
+            "rss_bytes": 98713600,
+            "started_ticks": 5425
+          },
+          "worker": {
+            "cpu_ticks": 6090,
+            "pid": 3108,
+            "rss_bytes": 93347840,
+            "started_ticks": 5425
+          }
+        },
+        "clock_ticks_per_second": 100
+      },
+      "query_ids": [
+        "355",
+        "949",
+        "400",
+        "1053",
+        "157",
+        "565",
+        "505",
+        "379",
+        "990",
+        "223",
+        "490",
+        "313",
+        "667",
+        "1361",
+        "553",
+        "122",
+        "187",
+        "1220",
+        "944",
+        "1148",
+        "73",
+        "1407",
+        "60",
+        "866",
+        "688",
+        "1230",
+        "235",
+        "1158",
+        "902",
+        "1111"
+      ],
+      "restart_observation": null,
+      "seed": 0,
+      "summary": {
+        "attempted": 300,
+        "completed_requests_per_second": 18.983063346507112,
+        "concurrency": 1,
+        "elapsed_seconds": 15.803561023000015,
+        "errors": {},
+        "failed": 0,
+        "latency_ms_successful": {
+          "count": 300,
+          "max": 104.70384499998886,
+          "min": 49.39523800001666,
+          "p50": 51.45658050000179,
+          "p95": 54.72881384998801,
+          "p99": 92.68001766000907
+        },
+        "stage_latency_ms_successful": {
+          "embedding": {
+            "count": 300,
+            "max": 0.145,
+            "min": 0.07,
+            "p50": 0.086,
+            "p95": 0.118,
+            "p99": 0.13801
+          },
+          "fusion": {
+            "count": 300,
+            "max": 43.298,
+            "min": 0.664,
+            "p50": 0.748,
+            "p95": 0.9282500000000001,
+            "p99": 1.2847099999999985
+          },
+          "lexical_retrieval": {
+            "count": 300,
+            "max": 24.771,
+            "min": 14.538,
+            "p50": 15.311,
+            "p95": 15.90845,
+            "p99": 20.193929999999977
+          },
+          "reranking": {
+            "count": 300,
+            "max": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0
+          },
+          "total": {
+            "count": 300,
+            "max": 98.417,
+            "min": 44.049,
+            "p50": 45.8805,
+            "p95": 47.82745,
+            "p99": 58.54764999999998
+          },
+          "vector_retrieval": {
+            "count": 300,
+            "max": 81.806,
+            "min": 28.636,
+            "p50": 29.6525,
+            "p95": 30.42295,
+            "p99": 35.13662
+          }
+        },
+        "successful": 300,
+        "successful_requests_per_second": 18.983063346507112
+      },
+      "warmup": {
+        "attempted": 30,
+        "errors": {},
+        "failed": 0,
+        "records": [
+          {
+            "elapsed_ms": 86.62653400000409,
+            "error": null,
+            "query_id": "355",
+            "request_index": 0,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.099,
+              "fusion": 1.193,
+              "lexical_retrieval": 19.175,
+              "reranking": 0.0,
+              "total": 60.38,
+              "vector_retrieval": 39.886
+            }
+          },
+          {
+            "elapsed_ms": 50.22727400000804,
+            "error": null,
+            "query_id": "949",
+            "request_index": 1,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.07,
+              "fusion": 0.751,
+              "lexical_retrieval": 14.698,
+              "reranking": 0.0,
+              "total": 44.634,
+              "vector_retrieval": 29.096
+            }
+          },
+          {
+            "elapsed_ms": 51.27884999998855,
+            "error": null,
+            "query_id": "400",
+            "request_index": 2,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.085,
+              "fusion": 0.752,
+              "lexical_retrieval": 15.388,
+              "reranking": 0.0,
+              "total": 45.902,
+              "vector_retrieval": 29.654
+            }
+          },
+          {
+            "elapsed_ms": 50.60866700000588,
+            "error": null,
+            "query_id": "1053",
+            "request_index": 3,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.084,
+              "fusion": 0.759,
+              "lexical_retrieval": 15.092,
+              "reranking": 0.0,
+              "total": 45.341,
+              "vector_retrieval": 29.383
+            }
+          },
+          {
+            "elapsed_ms": 51.37919599999918,
+            "error": null,
+            "query_id": "157",
+            "request_index": 4,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.079,
+              "fusion": 0.916,
+              "lexical_retrieval": 15.106,
+              "reranking": 0.0,
+              "total": 45.706,
+              "vector_retrieval": 29.582
+            }
+          },
+          {
+            "elapsed_ms": 51.442885999989585,
+            "error": null,
+            "query_id": "565",
+            "request_index": 5,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.09,
+              "fusion": 0.768,
+              "lexical_retrieval": 15.259,
+              "reranking": 0.0,
+              "total": 45.929,
+              "vector_retrieval": 29.79
+            }
+          },
+          {
+            "elapsed_ms": 51.25028599999837,
+            "error": null,
+            "query_id": "505",
+            "request_index": 6,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.093,
+              "fusion": 0.726,
+              "lexical_retrieval": 15.56,
+              "reranking": 0.0,
+              "total": 45.853,
+              "vector_retrieval": 29.452
+            }
+          },
+          {
+            "elapsed_ms": 51.479924000005894,
+            "error": null,
+            "query_id": "379",
+            "request_index": 7,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.086,
+              "fusion": 0.744,
+              "lexical_retrieval": 15.33,
+              "reranking": 0.0,
+              "total": 46.069,
+              "vector_retrieval": 29.886
+            }
+          },
+          {
+            "elapsed_ms": 51.405946999977914,
+            "error": null,
+            "query_id": "990",
+            "request_index": 8,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.076,
+              "fusion": 0.899,
+              "lexical_retrieval": 15.487,
+              "reranking": 0.0,
+              "total": 45.999,
+              "vector_retrieval": 29.514
+            }
+          },
+          {
+            "elapsed_ms": 52.57049299999039,
+            "error": null,
+            "query_id": "223",
+            "request_index": 9,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.102,
+              "fusion": 0.767,
+              "lexical_retrieval": 16.111,
+              "reranking": 0.0,
+              "total": 47.08,
+              "vector_retrieval": 30.075
+            }
+          },
+          {
+            "elapsed_ms": 50.60495000000742,
+            "error": null,
+            "query_id": "490",
+            "request_index": 10,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.079,
+              "fusion": 0.74,
+              "lexical_retrieval": 14.933,
+              "reranking": 0.0,
+              "total": 45.132,
+              "vector_retrieval": 29.356
+            }
+          },
+          {
+            "elapsed_ms": 51.25976400000809,
+            "error": null,
+            "query_id": "313",
+            "request_index": 11,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.089,
+              "fusion": 0.741,
+              "lexical_retrieval": 15.311,
+              "reranking": 0.0,
+              "total": 45.81,
+              "vector_retrieval": 29.644
+            }
+          },
+          {
+            "elapsed_ms": 50.31844399999841,
+            "error": null,
+            "query_id": "667",
+            "request_index": 12,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.076,
+              "fusion": 0.863,
+              "lexical_retrieval": 14.891,
+              "reranking": 0.0,
+              "total": 45.016,
+              "vector_retrieval": 29.164
+            }
+          },
+          {
+            "elapsed_ms": 51.414301999983536,
+            "error": null,
+            "query_id": "1361",
+            "request_index": 13,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.084,
+              "fusion": 0.771,
+              "lexical_retrieval": 15.157,
+              "reranking": 0.0,
+              "total": 45.959,
+              "vector_retrieval": 29.923
+            }
+          },
+          {
+            "elapsed_ms": 50.82755600000155,
+            "error": null,
+            "query_id": "553",
+            "request_index": 14,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.102,
+              "fusion": 0.742,
+              "lexical_retrieval": 15.227,
+              "reranking": 0.0,
+              "total": 45.314,
+              "vector_retrieval": 29.221
+            }
+          },
+          {
+            "elapsed_ms": 51.15203199997609,
+            "error": null,
+            "query_id": "122",
+            "request_index": 15,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.082,
+              "fusion": 0.742,
+              "lexical_retrieval": 15.183,
+              "reranking": 0.0,
+              "total": 45.861,
+              "vector_retrieval": 29.831
+            }
+          },
+          {
+            "elapsed_ms": 50.980341999974144,
+            "error": null,
+            "query_id": "187",
+            "request_index": 16,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.079,
+              "fusion": 0.901,
+              "lexical_retrieval": 15.217,
+              "reranking": 0.0,
+              "total": 45.691,
+              "vector_retrieval": 29.468
+            }
+          },
+          {
+            "elapsed_ms": 51.69550799999456,
+            "error": null,
+            "query_id": "1220",
+            "request_index": 17,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.091,
+              "fusion": 0.758,
+              "lexical_retrieval": 15.518,
+              "reranking": 0.0,
+              "total": 46.208,
+              "vector_retrieval": 29.815
+            }
+          },
+          {
+            "elapsed_ms": 50.84189300001185,
+            "error": null,
+            "query_id": "944",
+            "request_index": 18,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.08,
+              "fusion": 0.739,
+              "lexical_retrieval": 15.21,
+              "reranking": 0.0,
+              "total": 45.293,
+              "vector_retrieval": 29.243
+            }
+          },
+          {
+            "elapsed_ms": 50.46129100000485,
+            "error": null,
+            "query_id": "1148",
+            "request_index": 19,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.089,
+              "fusion": 0.762,
+              "lexical_retrieval": 14.937,
+              "reranking": 0.0,
+              "total": 45.086,
+              "vector_retrieval": 29.274
+            }
+          },
+          {
+            "elapsed_ms": 50.85023800000954,
+            "error": null,
+            "query_id": "73",
+            "request_index": 20,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.103,
+              "fusion": 0.874,
+              "lexical_retrieval": 15.228,
+              "reranking": 0.0,
+              "total": 45.346,
+              "vector_retrieval": 29.119
+            }
+          },
+          {
+            "elapsed_ms": 49.4508130000213,
+            "error": null,
+            "query_id": "1407",
+            "request_index": 21,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.085,
+              "fusion": 0.74,
+              "lexical_retrieval": 14.3,
+              "reranking": 0.0,
+              "total": 44.103,
+              "vector_retrieval": 28.959
+            }
+          },
+          {
+            "elapsed_ms": 49.80005600000936,
+            "error": null,
+            "query_id": "60",
+            "request_index": 22,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.081,
+              "fusion": 0.76,
+              "lexical_retrieval": 14.939,
+              "reranking": 0.0,
+              "total": 44.499,
+              "vector_retrieval": 28.7
+            }
+          },
+          {
+            "elapsed_ms": 64.92309099999716,
+            "error": null,
+            "query_id": "866",
+            "request_index": 23,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.144,
+              "fusion": 0.733,
+              "lexical_retrieval": 18.768,
+              "reranking": 0.0,
+              "total": 58.015,
+              "vector_retrieval": 38.345
+            }
+          },
+          {
+            "elapsed_ms": 52.76766200000793,
+            "error": null,
+            "query_id": "688",
+            "request_index": 24,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.082,
+              "fusion": 0.885,
+              "lexical_retrieval": 16.88,
+              "reranking": 0.0,
+              "total": 47.123,
+              "vector_retrieval": 29.255
+            }
+          },
+          {
+            "elapsed_ms": 49.81378099998324,
+            "error": null,
+            "query_id": "1230",
+            "request_index": 25,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.078,
+              "fusion": 0.693,
+              "lexical_retrieval": 14.772,
+              "reranking": 0.0,
+              "total": 44.431,
+              "vector_retrieval": 28.87
+            }
+          },
+          {
+            "elapsed_ms": 50.11356200000705,
+            "error": null,
+            "query_id": "235",
+            "request_index": 26,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.077,
+              "fusion": 0.75,
+              "lexical_retrieval": 14.938,
+              "reranking": 0.0,
+              "total": 44.613,
+              "vector_retrieval": 28.829
+            }
+          },
+          {
+            "elapsed_ms": 56.111643999997796,
+            "error": null,
+            "query_id": "1158",
+            "request_index": 27,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.081,
+              "fusion": 1.118,
+              "lexical_retrieval": 15.18,
+              "reranking": 0.0,
+              "total": 48.673,
+              "vector_retrieval": 32.264
+            }
+          },
+          {
+            "elapsed_ms": 58.6583150000024,
+            "error": null,
+            "query_id": "902",
+            "request_index": 28,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.122,
+              "fusion": 0.85,
+              "lexical_retrieval": 22.112,
+              "reranking": 0.0,
+              "total": 52.878,
+              "vector_retrieval": 29.768
+            }
+          },
+          {
+            "elapsed_ms": 50.96410100000526,
+            "error": null,
+            "query_id": "1111",
+            "request_index": 29,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.079,
+              "fusion": 0.7,
+              "lexical_retrieval": 15.153,
+              "reranking": 0.0,
+              "total": 45.442,
+              "vector_retrieval": 29.488
+            }
+          }
+        ]
+      }
+    },
+    {
+      "harness_git_revision": "fa5b6fae567d3863eb26af68bd908fc4c8c8f383",
+      "harness_source_sha256": "1bcd79312744e6ea0045f2d252309d9fd2cf049cacb0b80f05cb8980f2fd6183",
+      "measurement_utc": "2026-10-26T19:46:26.263711+00:00",
+      "observation_status": "valid",
+      "phase": "warm",
+      "process_resources": {
+        "api": {
+          "cpu_seconds": 3.03,
+          "mean_cpu_percent_one_core": 39.732121421630616,
+          "process_start_ticks": 5425,
+          "rss_end_bytes": 98713600,
+          "rss_start_bytes": 98713600,
+          "sampling": "CPU tick delta over the request window; two RSS endpoints, not peak RSS"
+        },
+        "worker": {
+          "cpu_seconds": 0.0,
+          "mean_cpu_percent_one_core": 0.0,
+          "process_start_ticks": 5425,
+          "rss_end_bytes": 93347840,
+          "rss_start_bytes": 93347840,
+          "sampling": "CPU tick delta over the request window; two RSS endpoints, not peak RSS"
+        }
+      },
+      "process_snapshots": {
+        "after": {
+          "api": {
+            "cpu_ticks": 5731,
+            "pid": 3109,
+            "rss_bytes": 98713600,
+            "started_ticks": 5425
+          },
+          "worker": {
+            "cpu_ticks": 6090,
+            "pid": 3108,
+            "rss_bytes": 93347840,
+            "started_ticks": 5425
+          }
+        },
+        "before": {
+          "api": {
+            "cpu_ticks": 5428,
+            "pid": 3109,
+            "rss_bytes": 98713600,
+            "started_ticks": 5425
+          },
+          "worker": {
+            "cpu_ticks": 6090,
+            "pid": 3108,
+            "rss_bytes": 93347840,
+            "started_ticks": 5425
+          }
+        },
+        "clock_ticks_per_second": 100
+      },
+      "query_ids": [
+        "355",
+        "949",
+        "400",
+        "1053",
+        "157",
+        "565",
+        "505",
+        "379",
+        "990",
+        "223",
+        "490",
+        "313",
+        "667",
+        "1361",
+        "553",
+        "122",
+        "187",
+        "1220",
+        "944",
+        "1148",
+        "73",
+        "1407",
+        "60",
+        "866",
+        "688",
+        "1230",
+        "235",
+        "1158",
+        "902",
+        "1111"
+      ],
+      "restart_observation": null,
+      "seed": 0,
+      "summary": {
+        "attempted": 300,
+        "completed_requests_per_second": 39.3387340808224,
+        "concurrency": 4,
+        "elapsed_seconds": 7.62607152999999,
+        "errors": {},
+        "failed": 0,
+        "latency_ms_successful": {
+          "count": 300,
+          "max": 154.37026300000412,
+          "min": 72.15044200000875,
+          "p50": 97.61472699999274,
+          "p95": 137.21623799998216,
+          "p99": 150.80715978000651
+        },
+        "stage_latency_ms_successful": {
+          "embedding": {
+            "count": 300,
+            "max": 0.239,
+            "min": 0.068,
+            "p50": 0.117,
+            "p95": 0.16205000000000003,
+            "p99": 0.19302
+          },
+          "fusion": {
+            "count": 300,
+            "max": 53.163,
+            "min": 0.61,
+            "p50": 0.75,
+            "p95": 1.7695500000000013,
+            "p99": 2.478099999999999
+          },
+          "lexical_retrieval": {
+            "count": 300,
+            "max": 82.404,
+            "min": 15.81,
+            "p50": 24.5015,
+            "p95": 32.829800000000006,
+            "p99": 42.818499999999986
+          },
+          "reranking": {
+            "count": 300,
+            "max": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0
+          },
+          "total": {
+            "count": 300,
+            "max": 134.196,
+            "min": 64.014,
+            "p50": 79.2145,
+            "p95": 104.67270000000002,
+            "p99": 126.43765999999997
+          },
+          "vector_retrieval": {
+            "count": 300,
+            "max": 110.522,
+            "min": 40.101,
+            "p50": 52.8555,
+            "p95": 68.1299,
+            "p99": 91.14103999999999
+          }
+        },
+        "successful": 300,
+        "successful_requests_per_second": 39.3387340808224
+      },
+      "warmup": {
+        "attempted": 30,
+        "errors": {},
+        "failed": 0,
+        "records": [
+          {
+            "elapsed_ms": 73.29567599998654,
+            "error": null,
+            "query_id": "355",
+            "request_index": 0,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.109,
+              "fusion": 0.751,
+              "lexical_retrieval": 15.856,
+              "reranking": 0.0,
+              "total": 46.698,
+              "vector_retrieval": 29.955
+            }
+          },
+          {
+            "elapsed_ms": 51.81602799999041,
+            "error": null,
+            "query_id": "949",
+            "request_index": 1,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.069,
+              "fusion": 0.773,
+              "lexical_retrieval": 15.272,
+              "reranking": 0.0,
+              "total": 45.968,
+              "vector_retrieval": 29.83
+            }
+          },
+          {
+            "elapsed_ms": 52.019510999997465,
+            "error": null,
+            "query_id": "400",
+            "request_index": 2,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.114,
+              "fusion": 0.756,
+              "lexical_retrieval": 15.595,
+              "reranking": 0.0,
+              "total": 46.31,
+              "vector_retrieval": 29.818
+            }
+          },
+          {
+            "elapsed_ms": 52.28450999999268,
+            "error": null,
+            "query_id": "1053",
+            "request_index": 3,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.088,
+              "fusion": 0.711,
+              "lexical_retrieval": 15.784,
+              "reranking": 0.0,
+              "total": 46.845,
+              "vector_retrieval": 30.239
+            }
+          },
+          {
+            "elapsed_ms": 52.89579899999808,
+            "error": null,
+            "query_id": "157",
+            "request_index": 4,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.079,
+              "fusion": 0.723,
+              "lexical_retrieval": 16.282,
+              "reranking": 0.0,
+              "total": 47.281,
+              "vector_retrieval": 30.172
+            }
+          },
+          {
+            "elapsed_ms": 52.356919999994034,
+            "error": null,
+            "query_id": "565",
+            "request_index": 5,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.12,
+              "fusion": 0.727,
+              "lexical_retrieval": 15.776,
+              "reranking": 0.0,
+              "total": 46.892,
+              "vector_retrieval": 30.242
+            }
+          },
+          {
+            "elapsed_ms": 52.15041700000711,
+            "error": null,
+            "query_id": "505",
+            "request_index": 6,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.099,
+              "fusion": 0.744,
+              "lexical_retrieval": 15.828,
+              "reranking": 0.0,
+              "total": 46.562,
+              "vector_retrieval": 29.866
+            }
+          },
+          {
+            "elapsed_ms": 51.641996000000745,
+            "error": null,
+            "query_id": "379",
+            "request_index": 7,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.094,
+              "fusion": 0.773,
+              "lexical_retrieval": 15.65,
+              "reranking": 0.0,
+              "total": 46.218,
+              "vector_retrieval": 29.675
+            }
+          },
+          {
+            "elapsed_ms": 52.55656799999997,
+            "error": null,
+            "query_id": "990",
+            "request_index": 8,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.083,
+              "fusion": 0.735,
+              "lexical_retrieval": 15.9,
+              "reranking": 0.0,
+              "total": 46.924,
+              "vector_retrieval": 30.182
+            }
+          },
+          {
+            "elapsed_ms": 52.660349000007045,
+            "error": null,
+            "query_id": "223",
+            "request_index": 9,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.099,
+              "fusion": 0.742,
+              "lexical_retrieval": 15.935,
+              "reranking": 0.0,
+              "total": 47.083,
+              "vector_retrieval": 30.281
+            }
+          },
+          {
+            "elapsed_ms": 52.24328699998182,
+            "error": null,
+            "query_id": "490",
+            "request_index": 10,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.129,
+              "fusion": 0.717,
+              "lexical_retrieval": 15.632,
+              "reranking": 0.0,
+              "total": 46.839,
+              "vector_retrieval": 30.337
+            }
+          },
+          {
+            "elapsed_ms": 52.214476000017385,
+            "error": null,
+            "query_id": "313",
+            "request_index": 11,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.094,
+              "fusion": 0.744,
+              "lexical_retrieval": 15.67,
+              "reranking": 0.0,
+              "total": 46.605,
+              "vector_retrieval": 30.072
+            }
+          },
+          {
+            "elapsed_ms": 51.489373000009664,
+            "error": null,
+            "query_id": "667",
+            "request_index": 12,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.103,
+              "fusion": 0.742,
+              "lexical_retrieval": 15.412,
+              "reranking": 0.0,
+              "total": 46.181,
+              "vector_retrieval": 29.898
+            }
+          },
+          {
+            "elapsed_ms": 51.50912699997434,
+            "error": null,
+            "query_id": "1361",
+            "request_index": 13,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.087,
+              "fusion": 0.704,
+              "lexical_retrieval": 15.524,
+              "reranking": 0.0,
+              "total": 46.181,
+              "vector_retrieval": 29.841
+            }
+          },
+          {
+            "elapsed_ms": 52.24574900000789,
+            "error": null,
+            "query_id": "553",
+            "request_index": 14,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.101,
+              "fusion": 0.771,
+              "lexical_retrieval": 15.537,
+              "reranking": 0.0,
+              "total": 46.765,
+              "vector_retrieval": 30.336
+            }
+          },
+          {
+            "elapsed_ms": 51.54631499999596,
+            "error": null,
+            "query_id": "122",
+            "request_index": 15,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.086,
+              "fusion": 0.765,
+              "lexical_retrieval": 15.233,
+              "reranking": 0.0,
+              "total": 46.247,
+              "vector_retrieval": 30.139
+            }
+          },
+          {
+            "elapsed_ms": 51.70156799999859,
+            "error": null,
+            "query_id": "187",
+            "request_index": 16,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.096,
+              "fusion": 0.744,
+              "lexical_retrieval": 15.41,
+              "reranking": 0.0,
+              "total": 46.289,
+              "vector_retrieval": 30.013
+            }
+          },
+          {
+            "elapsed_ms": 51.85343899998429,
+            "error": null,
+            "query_id": "1220",
+            "request_index": 17,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.1,
+              "fusion": 0.747,
+              "lexical_retrieval": 15.796,
+              "reranking": 0.0,
+              "total": 46.546,
+              "vector_retrieval": 29.877
+            }
+          },
+          {
+            "elapsed_ms": 51.536683999984234,
+            "error": null,
+            "query_id": "944",
+            "request_index": 18,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.083,
+              "fusion": 0.776,
+              "lexical_retrieval": 15.469,
+              "reranking": 0.0,
+              "total": 46.197,
+              "vector_retrieval": 29.845
+            }
+          },
+          {
+            "elapsed_ms": 51.35406600001602,
+            "error": null,
+            "query_id": "1148",
+            "request_index": 19,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.087,
+              "fusion": 0.71,
+              "lexical_retrieval": 15.072,
+              "reranking": 0.0,
+              "total": 45.871,
+              "vector_retrieval": 29.978
+            }
+          },
+          {
+            "elapsed_ms": 51.26959000000397,
+            "error": null,
+            "query_id": "73",
+            "request_index": 20,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.078,
+              "fusion": 0.753,
+              "lexical_retrieval": 15.255,
+              "reranking": 0.0,
+              "total": 45.881,
+              "vector_retrieval": 29.77
+            }
+          },
+          {
+            "elapsed_ms": 50.68084699999531,
+            "error": null,
+            "query_id": "1407",
+            "request_index": 21,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.079,
+              "fusion": 0.757,
+              "lexical_retrieval": 14.881,
+              "reranking": 0.0,
+              "total": 45.355,
+              "vector_retrieval": 29.613
+            }
+          },
+          {
+            "elapsed_ms": 51.43743899998299,
+            "error": null,
+            "query_id": "60",
+            "request_index": 22,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.081,
+              "fusion": 0.76,
+              "lexical_retrieval": 15.17,
+              "reranking": 0.0,
+              "total": 46.031,
+              "vector_retrieval": 29.996
+            }
+          },
+          {
+            "elapsed_ms": 51.88456700000188,
+            "error": null,
+            "query_id": "866",
+            "request_index": 23,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.112,
+              "fusion": 0.737,
+              "lexical_retrieval": 15.379,
+              "reranking": 0.0,
+              "total": 46.315,
+              "vector_retrieval": 30.063
+            }
+          },
+          {
+            "elapsed_ms": 52.760454000008394,
+            "error": null,
+            "query_id": "688",
+            "request_index": 24,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.084,
+              "fusion": 0.742,
+              "lexical_retrieval": 15.767,
+              "reranking": 0.0,
+              "total": 46.947,
+              "vector_retrieval": 30.329
+            }
+          },
+          {
+            "elapsed_ms": 52.365857000012284,
+            "error": null,
+            "query_id": "1230",
+            "request_index": 25,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.089,
+              "fusion": 0.722,
+              "lexical_retrieval": 15.568,
+              "reranking": 0.0,
+              "total": 46.641,
+              "vector_retrieval": 30.237
+            }
+          },
+          {
+            "elapsed_ms": 52.69141499999819,
+            "error": null,
+            "query_id": "235",
+            "request_index": 26,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.117,
+              "fusion": 0.754,
+              "lexical_retrieval": 16.155,
+              "reranking": 0.0,
+              "total": 47.148,
+              "vector_retrieval": 30.097
+            }
+          },
+          {
+            "elapsed_ms": 52.32675299998846,
+            "error": null,
+            "query_id": "1158",
+            "request_index": 27,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.111,
+              "fusion": 0.752,
+              "lexical_retrieval": 15.635,
+              "reranking": 0.0,
+              "total": 46.63,
+              "vector_retrieval": 30.107
+            }
+          },
+          {
+            "elapsed_ms": 52.48371600001178,
+            "error": null,
+            "query_id": "902",
+            "request_index": 28,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.085,
+              "fusion": 0.776,
+              "lexical_retrieval": 15.681,
+              "reranking": 0.0,
+              "total": 46.854,
+              "vector_retrieval": 30.287
+            }
+          },
+          {
+            "elapsed_ms": 52.599944999997206,
+            "error": null,
+            "query_id": "1111",
+            "request_index": 29,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.087,
+              "fusion": 0.747,
+              "lexical_retrieval": 15.706,
+              "reranking": 0.0,
+              "total": 46.846,
+              "vector_retrieval": 30.281
+            }
+          }
+        ]
+      }
+    },
+    {
+      "harness_git_revision": "fa5b6fae567d3863eb26af68bd908fc4c8c8f383",
+      "harness_source_sha256": "1bcd79312744e6ea0045f2d252309d9fd2cf049cacb0b80f05cb8980f2fd6183",
+      "measurement_utc": "2026-10-26T19:46:35.606968+00:00",
+      "observation_status": "valid",
+      "phase": "warm",
+      "process_resources": {
+        "api": {
+          "cpu_seconds": 3.76,
+          "mean_cpu_percent_one_core": 59.07282924593634,
+          "process_start_ticks": 5425,
+          "rss_end_bytes": 99631104,
+          "rss_start_bytes": 98713600,
+          "sampling": "CPU tick delta over the request window; two RSS endpoints, not peak RSS"
+        },
+        "worker": {
+          "cpu_seconds": 0.0,
+          "mean_cpu_percent_one_core": 0.0,
+          "process_start_ticks": 5425,
+          "rss_end_bytes": 93347840,
+          "rss_start_bytes": 93347840,
+          "sampling": "CPU tick delta over the request window; two RSS endpoints, not peak RSS"
+        }
+      },
+      "process_snapshots": {
+        "after": {
+          "api": {
+            "cpu_ticks": 6138,
+            "pid": 3109,
+            "rss_bytes": 99631104,
+            "started_ticks": 5425
+          },
+          "worker": {
+            "cpu_ticks": 6091,
+            "pid": 3108,
+            "rss_bytes": 93347840,
+            "started_ticks": 5425
+          }
+        },
+        "before": {
+          "api": {
+            "cpu_ticks": 5762,
+            "pid": 3109,
+            "rss_bytes": 98713600,
+            "started_ticks": 5425
+          },
+          "worker": {
+            "cpu_ticks": 6091,
+            "pid": 3108,
+            "rss_bytes": 93347840,
+            "started_ticks": 5425
+          }
+        },
+        "clock_ticks_per_second": 100
+      },
+      "query_ids": [
+        "355",
+        "949",
+        "400",
+        "1053",
+        "157",
+        "565",
+        "505",
+        "379",
+        "990",
+        "223",
+        "490",
+        "313",
+        "667",
+        "1361",
+        "553",
+        "122",
+        "187",
+        "1220",
+        "944",
+        "1148",
+        "73",
+        "1407",
+        "60",
+        "866",
+        "688",
+        "1230",
+        "235",
+        "1158",
+        "902",
+        "1111"
+      ],
+      "restart_observation": null,
+      "seed": 0,
+      "summary": {
+        "attempted": 300,
+        "completed_requests_per_second": 47.13257652601304,
+        "concurrency": 8,
+        "elapsed_seconds": 6.365024407999982,
+        "errors": {},
+        "failed": 0,
+        "latency_ms_successful": {
+          "count": 300,
+          "max": 334.9809870000229,
+          "min": 75.32637399998521,
+          "p50": 163.4186280000023,
+          "p95": 252.2445635500006,
+          "p99": 317.6928506799967
+        },
+        "stage_latency_ms_successful": {
+          "embedding": {
+            "count": 300,
+            "max": 1.059,
+            "min": 0.064,
+            "p50": 0.133,
+            "p95": 0.17905000000000001,
+            "p99": 0.3060999999999999
+          },
+          "fusion": {
+            "count": 300,
+            "max": 72.455,
+            "min": 0.641,
+            "p50": 1.398,
+            "p95": 2.927750000000004,
+            "p99": 3.4693299999999994
+          },
+          "lexical_retrieval": {
+            "count": 300,
+            "max": 135.552,
+            "min": 2.089,
+            "p50": 30.627000000000002,
+            "p95": 85.52455,
+            "p99": 114.96544999999995
+          },
+          "reranking": {
+            "count": 300,
+            "max": 0.0,
+            "min": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "p99": 0.0
+          },
+          "total": {
+            "count": 300,
+            "max": 301.865,
+            "min": 51.36,
+            "p50": 130.5075,
+            "p95": 215.1945,
+            "p99": 266.69152999999994
+          },
+          "vector_retrieval": {
+            "count": 300,
+            "max": 215.157,
+            "min": 32.607,
+            "p50": 94.8135,
+            "p95": 158.63065000000003,
+            "p99": 178.92710999999997
+          }
+        },
+        "successful": 300,
+        "successful_requests_per_second": 47.13257652601304
+      },
+      "warmup": {
+        "attempted": 30,
+        "errors": {},
+        "failed": 0,
+        "records": [
+          {
+            "elapsed_ms": 72.20900900000515,
+            "error": null,
+            "query_id": "355",
+            "request_index": 0,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.103,
+              "fusion": 0.761,
+              "lexical_retrieval": 15.398,
+              "reranking": 0.0,
+              "total": 45.97,
+              "vector_retrieval": 29.683
+            }
+          },
+          {
+            "elapsed_ms": 50.95323399999074,
+            "error": null,
+            "query_id": "949",
+            "request_index": 1,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.07,
+              "fusion": 0.74,
+              "lexical_retrieval": 14.907,
+              "reranking": 0.0,
+              "total": 45.29,
+              "vector_retrieval": 29.553
+            }
+          },
+          {
+            "elapsed_ms": 51.024377000004506,
+            "error": null,
+            "query_id": "400",
+            "request_index": 2,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.084,
+              "fusion": 0.775,
+              "lexical_retrieval": 15.279,
+              "reranking": 0.0,
+              "total": 45.74,
+              "vector_retrieval": 29.579
+            }
+          },
+          {
+            "elapsed_ms": 50.784929999991846,
+            "error": null,
+            "query_id": "1053",
+            "request_index": 3,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.083,
+              "fusion": 0.713,
+              "lexical_retrieval": 15.291,
+              "reranking": 0.0,
+              "total": 45.462,
+              "vector_retrieval": 29.355
+            }
+          },
+          {
+            "elapsed_ms": 51.45948099999487,
+            "error": null,
+            "query_id": "157",
+            "request_index": 4,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.074,
+              "fusion": 0.749,
+              "lexical_retrieval": 15.104,
+              "reranking": 0.0,
+              "total": 45.77,
+              "vector_retrieval": 29.823
+            }
+          },
+          {
+            "elapsed_ms": 51.79576900002303,
+            "error": null,
+            "query_id": "565",
+            "request_index": 5,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.09,
+              "fusion": 0.79,
+              "lexical_retrieval": 15.363,
+              "reranking": 0.0,
+              "total": 46.147,
+              "vector_retrieval": 29.88
+            }
+          },
+          {
+            "elapsed_ms": 53.1425959999865,
+            "error": null,
+            "query_id": "505",
+            "request_index": 6,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.095,
+              "fusion": 0.771,
+              "lexical_retrieval": 15.996,
+              "reranking": 0.0,
+              "total": 47.095,
+              "vector_retrieval": 30.208
+            }
+          },
+          {
+            "elapsed_ms": 52.19407399999909,
+            "error": null,
+            "query_id": "379",
+            "request_index": 7,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.086,
+              "fusion": 0.757,
+              "lexical_retrieval": 15.676,
+              "reranking": 0.0,
+              "total": 46.693,
+              "vector_retrieval": 30.149
+            }
+          },
+          {
+            "elapsed_ms": 52.095558999980085,
+            "error": null,
+            "query_id": "990",
+            "request_index": 8,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.081,
+              "fusion": 0.738,
+              "lexical_retrieval": 15.681,
+              "reranking": 0.0,
+              "total": 46.631,
+              "vector_retrieval": 30.107
+            }
+          },
+          {
+            "elapsed_ms": 51.899101999993036,
+            "error": null,
+            "query_id": "223",
+            "request_index": 9,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.099,
+              "fusion": 0.735,
+              "lexical_retrieval": 15.939,
+              "reranking": 0.0,
+              "total": 46.294,
+              "vector_retrieval": 29.497
+            }
+          },
+          {
+            "elapsed_ms": 51.57382400000188,
+            "error": null,
+            "query_id": "490",
+            "request_index": 10,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.108,
+              "fusion": 0.732,
+              "lexical_retrieval": 15.494,
+              "reranking": 0.0,
+              "total": 46.206,
+              "vector_retrieval": 29.846
+            }
+          },
+          {
+            "elapsed_ms": 51.64324399999032,
+            "error": null,
+            "query_id": "313",
+            "request_index": 11,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.083,
+              "fusion": 0.708,
+              "lexical_retrieval": 15.53,
+              "reranking": 0.0,
+              "total": 46.096,
+              "vector_retrieval": 29.752
+            }
+          },
+          {
+            "elapsed_ms": 51.82570400000941,
+            "error": null,
+            "query_id": "667",
+            "request_index": 12,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.077,
+              "fusion": 0.731,
+              "lexical_retrieval": 15.315,
+              "reranking": 0.0,
+              "total": 46.362,
+              "vector_retrieval": 30.215
+            }
+          },
+          {
+            "elapsed_ms": 51.458437999997386,
+            "error": null,
+            "query_id": "1361",
+            "request_index": 13,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.087,
+              "fusion": 0.788,
+              "lexical_retrieval": 15.235,
+              "reranking": 0.0,
+              "total": 45.679,
+              "vector_retrieval": 29.546
+            }
+          },
+          {
+            "elapsed_ms": 52.000542000001815,
+            "error": null,
+            "query_id": "553",
+            "request_index": 14,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.105,
+              "fusion": 0.734,
+              "lexical_retrieval": 15.44,
+              "reranking": 0.0,
+              "total": 46.374,
+              "vector_retrieval": 30.07
+            }
+          },
+          {
+            "elapsed_ms": 52.00719399999798,
+            "error": null,
+            "query_id": "122",
+            "request_index": 15,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.088,
+              "fusion": 0.752,
+              "lexical_retrieval": 15.521,
+              "reranking": 0.0,
+              "total": 46.426,
+              "vector_retrieval": 30.04
+            }
+          },
+          {
+            "elapsed_ms": 52.426276999995025,
+            "error": null,
+            "query_id": "187",
+            "request_index": 16,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.079,
+              "fusion": 0.792,
+              "lexical_retrieval": 15.604,
+              "reranking": 0.0,
+              "total": 46.806,
+              "vector_retrieval": 30.305
+            }
+          },
+          {
+            "elapsed_ms": 52.979881999988265,
+            "error": null,
+            "query_id": "1220",
+            "request_index": 17,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.093,
+              "fusion": 0.754,
+              "lexical_retrieval": 16.275,
+              "reranking": 0.0,
+              "total": 47.336,
+              "vector_retrieval": 30.188
+            }
+          },
+          {
+            "elapsed_ms": 52.071934999986524,
+            "error": null,
+            "query_id": "944",
+            "request_index": 18,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.086,
+              "fusion": 0.758,
+              "lexical_retrieval": 15.744,
+              "reranking": 0.0,
+              "total": 46.57,
+              "vector_retrieval": 29.956
+            }
+          },
+          {
+            "elapsed_ms": 101.44686699999284,
+            "error": null,
+            "query_id": "1148",
+            "request_index": 19,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.091,
+              "fusion": 49.631,
+              "lexical_retrieval": 15.585,
+              "reranking": 0.0,
+              "total": 95.537,
+              "vector_retrieval": 30.198
+            }
+          },
+          {
+            "elapsed_ms": 53.204141999998456,
+            "error": null,
+            "query_id": "73",
+            "request_index": 20,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.086,
+              "fusion": 0.826,
+              "lexical_retrieval": 15.566,
+              "reranking": 0.0,
+              "total": 47.307,
+              "vector_retrieval": 30.799
+            }
+          },
+          {
+            "elapsed_ms": 51.70569099999511,
+            "error": null,
+            "query_id": "1407",
+            "request_index": 21,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.093,
+              "fusion": 0.759,
+              "lexical_retrieval": 15.285,
+              "reranking": 0.0,
+              "total": 46.139,
+              "vector_retrieval": 29.974
+            }
+          },
+          {
+            "elapsed_ms": 51.888963000010335,
+            "error": null,
+            "query_id": "60",
+            "request_index": 22,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.084,
+              "fusion": 0.761,
+              "lexical_retrieval": 15.399,
+              "reranking": 0.0,
+              "total": 46.439,
+              "vector_retrieval": 30.168
+            }
+          },
+          {
+            "elapsed_ms": 53.079561000004105,
+            "error": null,
+            "query_id": "866",
+            "request_index": 23,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.1,
+              "fusion": 0.953,
+              "lexical_retrieval": 15.91,
+              "reranking": 0.0,
+              "total": 47.202,
+              "vector_retrieval": 30.212
+            }
+          },
+          {
+            "elapsed_ms": 52.554447000005666,
+            "error": null,
+            "query_id": "688",
+            "request_index": 24,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.113,
+              "fusion": 0.757,
+              "lexical_retrieval": 15.786,
+              "reranking": 0.0,
+              "total": 47.048,
+              "vector_retrieval": 30.366
+            }
+          },
+          {
+            "elapsed_ms": 52.117901999992,
+            "error": null,
+            "query_id": "1230",
+            "request_index": 25,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.089,
+              "fusion": 0.775,
+              "lexical_retrieval": 15.538,
+              "reranking": 0.0,
+              "total": 46.637,
+              "vector_retrieval": 30.209
+            }
+          },
+          {
+            "elapsed_ms": 52.13197699998773,
+            "error": null,
+            "query_id": "235",
+            "request_index": 26,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.086,
+              "fusion": 0.72,
+              "lexical_retrieval": 15.718,
+              "reranking": 0.0,
+              "total": 46.702,
+              "vector_retrieval": 30.154
+            }
+          },
+          {
+            "elapsed_ms": 52.79182799998239,
+            "error": null,
+            "query_id": "1158",
+            "request_index": 27,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.083,
+              "fusion": 0.995,
+              "lexical_retrieval": 15.785,
+              "reranking": 0.0,
+              "total": 47.233,
+              "vector_retrieval": 30.345
+            }
+          },
+          {
+            "elapsed_ms": 51.85983900000224,
+            "error": null,
+            "query_id": "902",
+            "request_index": 28,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.089,
+              "fusion": 0.785,
+              "lexical_retrieval": 15.451,
+              "reranking": 0.0,
+              "total": 46.482,
+              "vector_retrieval": 30.134
+            }
+          },
+          {
+            "elapsed_ms": 51.748650999996926,
+            "error": null,
+            "query_id": "1111",
+            "request_index": 29,
+            "returned_chunks": 100,
+            "stage_ms": {
+              "embedding": 0.082,
+              "fusion": 0.746,
+              "lexical_retrieval": 15.381,
+              "reranking": 0.0,
+              "total": 46.315,
+              "vector_retrieval": 30.081
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "corpus": {
+    "chunks": 5887,
+    "documents": 5183,
+    "indexed_documents": 5183,
+    "workspace_id": "c79cd336-4144-4855-8fe7-4c63e0b5f2b4"
+  },
+  "limits": [
+    "Training queries only; deterministic local providers and no generation.",
+    "Closed-loop throughput, not a production arrival-rate/capacity SLA.",
+    "Five first-search observations have ready dependencies and retained DB/OS caches; no cold-tail or paired cold-penalty claim.",
+    "CPU tick deltas and RSS endpoints; not peak RSS or database/Redis CPU attribution.",
+    "Billing, GPU and learned inference were not measured."
+  ],
+  "postgres": {
+    "chunks_table_and_indexes_bytes_global": 47177728,
+    "indexes": [
+      {
+        "indexdef": "CREATE INDEX ix_chunks_content_tsv ON public.chunks USING gin (content_tsv)",
+        "indexname": "ix_chunks_content_tsv",
+        "tablename": "chunks"
+      },
+      {
+        "indexdef": "CREATE INDEX ix_chunks_document_id ON public.chunks USING btree (document_id)",
+        "indexname": "ix_chunks_document_id",
+        "tablename": "chunks"
+      },
+      {
+        "indexdef": "CREATE INDEX ix_chunks_embedding_hnsw ON public.chunks USING hnsw (embedding vector_cosine_ops)",
+        "indexname": "ix_chunks_embedding_hnsw",
+        "tablename": "chunks"
+      },
+      {
+        "indexdef": "CREATE INDEX ix_chunks_workspace_document ON public.chunks USING btree (workspace_id, document_id)",
+        "indexname": "ix_chunks_workspace_document",
+        "tablename": "chunks"
+      },
+      {
+        "indexdef": "CREATE INDEX ix_chunks_workspace_id ON public.chunks USING btree (workspace_id)",
+        "indexname": "ix_chunks_workspace_id",
+        "tablename": "chunks"
+      },
+      {
+        "indexdef": "CREATE INDEX ix_documents_content_sha256 ON public.documents USING btree (content_sha256)",
+        "indexname": "ix_documents_content_sha256",
+        "tablename": "documents"
+      },
+      {
+        "indexdef": "CREATE INDEX ix_documents_status ON public.documents USING btree (status)",
+        "indexname": "ix_documents_status",
+        "tablename": "documents"
+      },
+      {
+        "indexdef": "CREATE INDEX ix_documents_workspace_created ON public.documents USING btree (workspace_id, created_at)",
+        "indexname": "ix_documents_workspace_created",
+        "tablename": "documents"
+      },
+      {
+        "indexdef": "CREATE INDEX ix_documents_workspace_id ON public.documents USING btree (workspace_id)",
+        "indexname": "ix_documents_workspace_id",
+        "tablename": "documents"
+      },
+      {
+        "indexdef": "CREATE UNIQUE INDEX pk_chunks ON public.chunks USING btree (id)",
+        "indexname": "pk_chunks",
+        "tablename": "chunks"
+      },
+      {
+        "indexdef": "CREATE UNIQUE INDEX pk_documents ON public.documents USING btree (id)",
+        "indexname": "pk_documents",
+        "tablename": "documents"
+      },
+      {
+        "indexdef": "CREATE UNIQUE INDEX uq_chunks_document_id ON public.chunks USING btree (document_id, \"position\")",
+        "indexname": "uq_chunks_document_id",
+        "tablename": "chunks"
+      }
+    ],
+    "pgvector_version": "0.8.7",
+    "version": "PostgreSQL 16.15 (Debian 16.15-1.pgdg12+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit"
+  },
+  "query_embedding": {
+    "dimensions": 384,
+    "model": "feature-hash-384",
+    "provider": "local"
+  },
+  "schema_version": 1,
+  "serving_and_harness_checkout": "fa5b6fae567d3863eb26af68bd908fc4c8c8f383",
+  "workflow_revision": "0de44eb3868b7f87749044f5110282c23124b9e4"
+}
